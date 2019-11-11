@@ -3,6 +3,7 @@ package org.yzh.web.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.yzh.framework.TCPServer;
+import org.yzh.framework.UDPServer;
 import org.yzh.framework.mapping.HandlerMapper;
 import org.yzh.framework.spring.SpringHandlerMapper;
 
@@ -10,8 +11,9 @@ import org.yzh.framework.spring.SpringHandlerMapper;
 public class NettyConfig {
 
     @Bean
-    public TCPServer TCPServer() {
-        TCPServer server = new TCPServer(7611, (byte) 0x7e, handlerMapper());
+    public UDPServer TCPServer() {
+//        TCPServer server = new TCPServer(7611, (byte) 0x7e, handlerMapper());
+        UDPServer server = new UDPServer(7612, (byte) 0x7e, handlerMapper());
         server.startServer();
         return server;
     }
