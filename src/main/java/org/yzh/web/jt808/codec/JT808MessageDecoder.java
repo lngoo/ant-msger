@@ -3,6 +3,7 @@ package org.yzh.web.jt808.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import org.yzh.framework.codec.MessageDecoder;
 import org.yzh.framework.commons.transform.ByteBufUtils;
 import org.yzh.framework.mapping.HandlerMapper;
@@ -17,11 +18,13 @@ import java.util.List;
  */
 public class JT808MessageDecoder extends MessageDecoder {
 
-    public JT808MessageDecoder() {
+
+    public JT808MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
+        super(decoder);
     }
 
-    public JT808MessageDecoder(HandlerMapper handlerMapper) {
-        super(handlerMapper);
+    public JT808MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
+        super(decoder, handlerMapper);
     }
 
     /**

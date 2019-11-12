@@ -3,7 +3,10 @@ package org.yzh.framework.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.DatagramPacketDecoder;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import org.yzh.framework.annotation.Property;
 import org.yzh.framework.commons.PropertyUtils;
 import org.yzh.framework.commons.bean.BeanUtils;
@@ -31,19 +34,26 @@ import static org.yzh.framework.enums.DataType.*;
  * @author zhihao.ye (yezhihaoo@gmail.com)
  * @home http://gitee.com/yezhihao/jt808-server
  */
-public abstract class MessageDecoder extends ByteToMessageDecoder {
+public abstract class MessageDecoder extends DatagramPacketDecoder {
 
     private HandlerMapper handlerMapper;
 
-    public MessageDecoder() {
+    public MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
+        super(decoder);
     }
 
-    public MessageDecoder(HandlerMapper handlerMapper) {
+    public MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
+        super(decoder);
         this.handlerMapper = handlerMapper;
     }
 
     @Override
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+        decode(ctx, msg.content(), out);
+    }
+
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+//        in.
         int type = getType(in);
         Handler handler = handlerMapper.getHandler(type);
 
