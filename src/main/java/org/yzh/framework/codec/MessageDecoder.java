@@ -10,6 +10,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.yzh.framework.annotation.Property;
 import org.yzh.framework.commons.PropertyUtils;
 import org.yzh.framework.commons.bean.BeanUtils;
+import org.yzh.framework.commons.bean.DecodeResult;
 import org.yzh.framework.commons.transform.Bcd;
 import org.yzh.framework.enums.DataType;
 import org.yzh.framework.mapping.Handler;
@@ -48,12 +49,8 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
-        decode(ctx, msg.content(), out);
-    }
-
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-//        in.
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
+        ByteBuf in = msg.content();
         int type = getType(in);
         Handler handler = handlerMapper.getHandler(type);
 
@@ -62,20 +59,51 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
         }
 
         Type[] types = handler.getTargetParameterTypes();
+        AbstractMessage<? extends AbstractBody> decode = null;
         if (types[0] instanceof ParameterizedTypeImpl) {
             ParameterizedTypeImpl clazz = (ParameterizedTypeImpl) types[0];
 
             Class<? extends AbstractBody> bodyClass = (Class<? extends AbstractBody>) clazz.getActualTypeArguments()[0];
             Class<? extends AbstractMessage> messageClass = (Class<? extends AbstractMessage>) clazz.getRawType();
-            AbstractMessage<? extends AbstractBody> decode = decode(in, messageClass, bodyClass);
-            out.add(decode);
+            decode = decode(in, messageClass, bodyClass);
         } else {
-            AbstractMessage<? extends AbstractBody> decode = decode(in, (Class) types[0], null);
-            out.add(decode);
+            decode = decode(in, (Class) types[0], null);
         }
+        DecodeResult decodeResult = new DecodeResult(decode, msg);
+        out.add(decodeResult);
 
         in.skipBytes(in.readableBytes());
     }
+
+//    @Override
+//    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+//        decode(ctx, msg.content(), out);
+//    }
+//
+//    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+////        in.
+//        int type = getType(in);
+//        Handler handler = handlerMapper.getHandler(type);
+//
+//        if (handler == null) {
+//            return;
+//        }
+//
+//        Type[] types = handler.getTargetParameterTypes();
+//        if (types[0] instanceof ParameterizedTypeImpl) {
+//            ParameterizedTypeImpl clazz = (ParameterizedTypeImpl) types[0];
+//
+//            Class<? extends AbstractBody> bodyClass = (Class<? extends AbstractBody>) clazz.getActualTypeArguments()[0];
+//            Class<? extends AbstractMessage> messageClass = (Class<? extends AbstractMessage>) clazz.getRawType();
+//            AbstractMessage<? extends AbstractBody> decode = decode(in, messageClass, bodyClass);
+//            out.add(decode);
+//        } else {
+//            AbstractMessage<? extends AbstractBody> decode = decode(in, (Class) types[0], null);
+//            out.add(decode);
+//        }
+//
+//        in.skipBytes(in.readableBytes());
+//    }
 
     /** 解析 */
     public <T extends AbstractBody> AbstractMessage<T> decode(ByteBuf buf, Class<? extends AbstractMessage> clazz, Class<T> bodyClass) {

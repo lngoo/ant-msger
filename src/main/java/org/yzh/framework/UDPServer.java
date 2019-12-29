@@ -9,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -44,21 +45,26 @@ public class UDPServer {
     }
 
     private void bind() throws Exception {
-        this.bossGroup = new NioEventLoopGroup();
-        this.workerGroup = new NioEventLoopGroup();
+//        this.bossGroup = new NioEventLoopGroup();
+        this.bossGroup = new NioEventLoopGroup(5);
+//        this.workerGroup = new NioEventLoopGroup();
 //        ServerBootstrap serverBootstrap = new ServerBootstrap();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(bossGroup)
 //                .channel(NioServerSocketChannel.class)
+//                .channel(NioDatagramChannel.class)
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .option(ChannelOption.SO_BROADCAST, true)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.DATAGRAM_CHANNEL_ACTIVE_ON_REGISTRATION, true)
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
                     @Override
                     protected void initChannel(NioDatagramChannel ch) throws Exception {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(30, 0, 0, TimeUnit.MINUTES));
                         // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
                         ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
+//                        ch.pipeline().addLast(new UdpServerHandler());
                         ch.pipeline().addLast(new JT808MessageDecoder(new MessageToMessageDecoder<ByteBuf>() {
                             @Override
                             protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
@@ -67,9 +73,10 @@ public class UDPServer {
                         }, handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new TCPServerHandler(handlerMapper));
-                    }
-                });
 
+                    }
+
+                });
         this.log.info("UDP服务启动完毕,port={}", this.port);
         ChannelFuture channelFuture = bootstrap.bind(port).sync();
 

@@ -1,12 +1,16 @@
 package org.yzh.framework;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+import org.yzh.framework.commons.bean.DecodeResult;
 import org.yzh.framework.log.Logger;
 import org.yzh.framework.mapping.Handler;
 import org.yzh.framework.mapping.HandlerMapper;
@@ -38,7 +42,8 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            AbstractMessage messageRequest = (AbstractMessage) msg;
+            DecodeResult decodeResult = (DecodeResult) msg;
+            AbstractMessage messageRequest = decodeResult.getMessage();
             Channel channel = ctx.channel();
 
             Handler handler = handlerMapper.getHandler(messageRequest.getType());
@@ -54,7 +59,10 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (messageResponse != null) {
-                ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
+                DatagramPacket data = new DatagramPacket(Unpooled.copiedBuffer(messageResponse.g), decodeResult.getDatagramPacket().sender());
+                ctx.writeAndFlush(data);//向客户端发送消息
+                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
+//                ChannelFuture future = ctx.writeAndFlush(messageResponse).sync();
             }
         } finally {
             ReferenceCountUtil.release(msg);
