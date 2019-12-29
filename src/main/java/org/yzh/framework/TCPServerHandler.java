@@ -59,10 +59,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (messageResponse != null) {
-                DatagramPacket data = new DatagramPacket(Unpooled.copiedBuffer(messageResponse.g), decodeResult.getDatagramPacket().sender());
-                ctx.writeAndFlush(data);//向客户端发送消息
-                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
-//                ChannelFuture future = ctx.writeAndFlush(messageResponse).sync();
+//                DatagramPacket data = new DatagramPacket(Unpooled.copiedBuffer(messageResponse), decodeResult.getDatagramPacket().sender());
+//                ctx.writeAndFlush(data);//向客户端发送消息
+//                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
+                channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
+                ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
             }
         } finally {
             ReferenceCountUtil.release(msg);
