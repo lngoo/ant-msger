@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 public class SessionManager {
 
     private static volatile SessionManager instance = null;
-    // netty生成的sessionID和Session的对应关系
-    private Map<String, Session> sessionIdMap;
+//    // netty生成的sessionID和Session的对应关系
+//    private Map<String, Session> sessionIdMap;
     // 终端号和netty生成的sessionID的对应关系
-    private Map<String, String> terminalMap;
+    private Map<String, Session> terminalMap;
 
     public SessionManager() {
-        this.sessionIdMap = new ConcurrentHashMap<>();
+//        this.sessionIdMap = new ConcurrentHashMap<>();
         this.terminalMap = new ConcurrentHashMap<>();
     }
 
@@ -33,39 +33,40 @@ public class SessionManager {
     }
 
     public boolean containsKey(String sessionId) {
-        return sessionIdMap.containsKey(sessionId);
+        return terminalMap.containsKey(sessionId);
     }
 
     public boolean containsSession(Session session) {
-        return sessionIdMap.containsValue(session);
+        return terminalMap.containsValue(session);
     }
 
     public Session getBySessionId(String sessionId) {
-        return sessionIdMap.get(sessionId);
+        return terminalMap.get(sessionId);
     }
 
     public Session getByMobileNumber(String mobileNumber) {
-        String sessionId = this.terminalMap.get(mobileNumber);
-        if (sessionId == null)
-            return null;
-        return this.getBySessionId(sessionId);
+//        String sessionId = this.terminalMap.get(mobileNumber);
+//        if (sessionId == null)
+//            return null;
+        return this.getBySessionId(mobileNumber);
     }
 
     public synchronized Session put(String key, Session value) {
-        if (value.getTerminalId() != null && !"".equals(value.getTerminalId().trim())) {
-            this.terminalMap.put(value.getTerminalId(), value.getId());
-        }
-        return sessionIdMap.put(key, value);
+//        if (value.getTerminalId() != null && !"".equals(value.getTerminalId().trim())) {
+//            this.terminalMap.put(value.getTerminalId(), value.getId());
+//        }
+        return terminalMap.put(key, value);
     }
 
     public synchronized Session removeBySessionId(String sessionId) {
-        if (sessionId == null)
-            return null;
-        Session session = sessionIdMap.remove(sessionId);
-        if (session == null)
-            return null;
-        if (session.getTerminalId() != null)
-            this.terminalMap.remove(session.getTerminalId());
+//        if (sessionId == null)
+//            return null;
+//        Session session = sessionIdMap.remove(sessionId);
+//        if (session == null)
+//            return null;
+//        if (session.getTerminalId() != null)
+        Session session = terminalMap.remove(sessionId);
+//            this.terminalMap.remove(sessionId);
         return session;
     }
 
@@ -90,19 +91,19 @@ public class SessionManager {
     // }
 
     public Set<String> keySet() {
-        return sessionIdMap.keySet();
+        return terminalMap.keySet();
     }
 
     public void forEach(BiConsumer<? super String, ? super Session> action) {
-        sessionIdMap.forEach(action);
+        terminalMap.forEach(action);
     }
 
     public Set<Entry<String, Session>> entrySet() {
-        return sessionIdMap.entrySet();
+        return terminalMap.entrySet();
     }
 
     public List<Session> toList() {
-        return this.sessionIdMap.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
+        return this.terminalMap.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
     }
 
 }

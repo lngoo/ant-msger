@@ -2,12 +2,14 @@ package org.yzh.framework.session;
 
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 public class Session {
 
     private String id;
     private String terminalId;
+    private InetSocketAddress socketAddress = null;
     private Channel channel = null;
     private boolean isAuthenticated = false;
     // 消息流水号 word(16) 按发送顺序从 0 开始循环累加
@@ -51,6 +53,14 @@ public class Session {
 
     public void setTerminalId(String terminalId) {
         this.terminalId = terminalId;
+    }
+
+    public InetSocketAddress getSocketAddress() {
+        return socketAddress;
+    }
+
+    public void setSocketAddress(InetSocketAddress socketAddress) {
+        this.socketAddress = socketAddress;
     }
 
     public Channel getChannel() {

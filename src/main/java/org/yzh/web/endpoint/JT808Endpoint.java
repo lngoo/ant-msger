@@ -3,6 +3,7 @@ package org.yzh.web.endpoint;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -146,14 +147,22 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端注册, desc = "终端注册")
-    public Message<RegisterResult> register(Message<Register> message, Session session) {
+    public Message<RegisterResult> register(Message<Register> message, DatagramPacket packet) {
         Register body = message.getBody();
         //TODO
-        session.setTerminalId(body.getTerminalId());
-        sessionManager.put(Session.buildId(session.getChannel()), session);
+        Session session = initSession(message, packet);
+        sessionManager.put(message.getMobileNumber(), session);
 
         RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
         return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
+    }
+
+    private Session initSession(Message<Register> message, DatagramPacket packet) {
+        Session session = new Session();
+        session.setTerminalId(message.getMobileNumber());
+        session.setId(message.getMobileNumber());
+        session.setSocketAddress(packet.sender());
+        return session;
     }
 
     @Mapping(types = 终端注销, desc = "终端注销")
