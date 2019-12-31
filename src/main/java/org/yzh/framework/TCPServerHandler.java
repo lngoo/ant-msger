@@ -69,6 +69,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 //                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
                 channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
+                channel.disconnect();
             }
         } finally {
             ReferenceCountUtil.release(msg);
