@@ -19,7 +19,7 @@ import org.yzh.web.config.SessionKey;
 
 import java.lang.reflect.Type;
 
-public class TCPServerHandler extends ChannelInboundHandlerAdapter {
+public class UDPServerHandler extends ChannelInboundHandlerAdapter {
 
     private final SessionManager sessionManager = SessionManager.getInstance();
 
@@ -27,12 +27,12 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     private HandlerMapper handlerMapper;
 
-    public TCPServerHandler(HandlerMapper handlerMapper) {
+    public UDPServerHandler(HandlerMapper handlerMapper) {
         this.handlerMapper = handlerMapper;
         this.logger = new Logger();
     }
 
-    public TCPServerHandler(HandlerMapper handlerMapper, Logger logger) {
+    public UDPServerHandler(HandlerMapper handlerMapper, Logger logger) {
         this.handlerMapper = handlerMapper;
         this.logger = logger;
     }
@@ -65,6 +65,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 //                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
                 channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
+                channel.disconnect();
             }
         } finally {
             ReferenceCountUtil.release(msg);
