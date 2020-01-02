@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 @EnableWebSocket
 @SpringBootApplication
-@ComponentScan({"org.yzh.web","com.ant.jt808.base"})
+@ComponentScan({"org.yzh","com.ant.jt808.base"})
 public class Application {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
