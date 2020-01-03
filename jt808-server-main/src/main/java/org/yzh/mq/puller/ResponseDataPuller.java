@@ -33,7 +33,7 @@ public class ResponseDataPuller {
 //                }
                 try {
                     while (true) {
-                        String data = stringRedisTemplate.opsForList().leftPop(redisKey);
+                        String data = stringRedisTemplate.opsForList().rightPop(redisKey);
                         if (null == data) {
                             // Sleep 3秒
                             Thread.sleep(3000);

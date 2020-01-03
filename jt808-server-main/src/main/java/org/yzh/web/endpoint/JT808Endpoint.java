@@ -11,10 +11,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yzh.framework.session.MessageManager;
 import org.yzh.framework.session.Session;
 import org.yzh.framework.session.SessionManager;
+import org.yzh.mq.sender.RequestDataJT808Sender;
 import org.yzh.web.config.SessionKey;
 
 import java.io.FileOutputStream;
@@ -27,6 +29,9 @@ import static com.ant.jt808.base.common.MessageId.*;
 @Endpoint
 @Component
 public class JT808Endpoint {
+
+    @Autowired
+    RequestDataJT808Sender jt808Sender;
 
     private static final Logger logger = LoggerFactory.getLogger(JT808Endpoint.class.getSimpleName());
 
@@ -155,8 +160,11 @@ public class JT808Endpoint {
         Session session = initSession(message, packet);
         sessionManager.put(message.getMobileNumber(), session);
 
-        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
-        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
+        // 发送到redis
+        jt808Sender.send(message);
+        return null;
+//        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
+//        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
 
     private Session initSession(Message<Register> message, DatagramPacket packet) {
