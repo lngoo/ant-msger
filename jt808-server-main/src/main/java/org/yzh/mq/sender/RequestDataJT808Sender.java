@@ -28,6 +28,8 @@ public class RequestDataJT808Sender {
             || null == message.getBody()) {
             System.out.println("### some data loss, can`t send to redis...");
         }
+
+        System.out.println("### sender send data to redis.." + System.currentTimeMillis());
         stringRedisTemplate.opsForList().leftPush(redisKey, JsonUtils.toJson(message));
     }
 }
