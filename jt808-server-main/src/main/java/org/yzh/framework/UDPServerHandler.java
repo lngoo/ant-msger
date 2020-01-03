@@ -1,5 +1,6 @@
 package org.yzh.framework;
 
+import com.ant.jt808.base.dto.jt808.CommonResult;
 import com.ant.jt808.base.dto.jt808.basics.Message;
 import com.ant.jt808.base.message.AbstractMessage;
 import io.netty.channel.Channel;
@@ -18,6 +19,9 @@ import org.yzh.framework.session.SessionManager;
 import org.yzh.web.config.SessionKey;
 
 import java.lang.reflect.Type;
+
+import static com.ant.jt808.base.common.MessageId.平台通用应答;
+import static com.ant.jt808.base.common.MessageId.终端心跳;
 
 public class UDPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -48,7 +52,6 @@ public class UDPServerHandler extends ChannelInboundHandlerAdapter {
             Handler handler = handlerMapper.getHandler(messageRequest.getType());
 
             Type[] types = handler.getTargetParameterTypes();
-            Session session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
 
             AbstractMessage messageResponse;
             if (types.length == 1) {
@@ -56,13 +59,21 @@ public class UDPServerHandler extends ChannelInboundHandlerAdapter {
             } else if (StringUtils.equals(types[1].getTypeName(), DatagramPacket.class.getName())) {
                 messageResponse = handler.invoke(messageRequest, decodeResult.getDatagramPacket());
             } else {
-                messageResponse = handler.invoke(messageRequest, session);
+                Session session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
+                // 1分钟过期,过期了直接返回失败
+                if (null == session
+                        || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60) {
+                    // 通用失败应答
+                    CommonResult result = new CommonResult(messageRequest.getType(), ((Message)messageRequest).getSerialNumber(), CommonResult.Fial);
+                    // 连接已丢失，未重连前，返回的序列号全为1
+                    messageResponse = new Message(平台通用应答, 1, ((Message)messageRequest).getMobileNumber(), result);
+                } else {
+                    session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+                    messageResponse = handler.invoke(messageRequest, session);
+                }
             }
 
             if (messageResponse != null) {
-//                DatagramPacket data = new DatagramPacket(Unpooled.copiedBuffer(messageResponse), decodeResult.getDatagramPacket().sender());
-//                ctx.writeAndFlush(data);//向客户端发送消息
-//                ChannelFuture future = (channel).writeAndFlush(messageResponse).sync();
                 channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
                 channel.disconnect();

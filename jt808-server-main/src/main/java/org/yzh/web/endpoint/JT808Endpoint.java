@@ -184,13 +184,29 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端鉴权, desc = "终端鉴权")
-    public Message authentication(Message<Authentication> message, Session session) {
+    public Message authentication(Message<Authentication> message, DatagramPacket packet) {
         Authentication body = message.getBody();
         //TODO
+//        session.setTerminalId(message.getMobileNumber());
+//        sessionManager.put(Session.buildId(session.getChannel()), session);
+
+        Session session = reCreateSession(message, packet);
+        sessionManager.put(message.getMobileNumber(), session);
+
+        // 发送到redis
+        jt808Sender.send(message);
+        return null;
+//        CommonResult result = new CommonResult(终端鉴权, message.getSerialNumber(), CommonResult.Success);
+//        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
+    }
+
+    private Session reCreateSession(Message<Authentication> message, DatagramPacket packet) {
+        Session session = new Session();
         session.setTerminalId(message.getMobileNumber());
-        sessionManager.put(Session.buildId(session.getChannel()), session);
-        CommonResult result = new CommonResult(终端鉴权, message.getSerialNumber(), CommonResult.Success);
-        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
+        session.setId(message.getMobileNumber());
+        session.setSocketAddress(packet.sender());
+        session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
+        return session;
     }
 
     @Mapping(types = 终端升级结果通知, desc = "终端升级结果通知")
@@ -205,8 +221,12 @@ public class JT808Endpoint {
     public Message 位置信息汇报(Message<PositionReport> message, Session session) {
         PositionReport body = message.getBody();
         //TODO
-        CommonResult result = new CommonResult(位置信息汇报, message.getSerialNumber(), CommonResult.Success);
-        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
+        // 发送到redis
+        jt808Sender.send(message);
+        return null;
+
+//        CommonResult result = new CommonResult(位置信息汇报, message.getSerialNumber(), CommonResult.Success);
+//        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
 
     @Mapping(types = 人工确认报警消息, desc = "人工确认报警消息")
