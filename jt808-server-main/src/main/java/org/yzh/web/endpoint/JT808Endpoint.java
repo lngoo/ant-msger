@@ -173,6 +173,7 @@ public class JT808Endpoint {
         session.setId(message.getMobileNumber());
         session.setSocketAddress(packet.sender());
         session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
+        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
     }
 
@@ -206,6 +207,7 @@ public class JT808Endpoint {
         session.setId(message.getMobileNumber());
         session.setSocketAddress(packet.sender());
         session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
+        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
     }
 

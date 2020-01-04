@@ -8,13 +8,20 @@
 4. 中止所有客户端连接2分钟
 
 5. 终端1位置信息汇报 被拒绝
+0200001601388888888800660000000200000002000000010000000200010001000149
 
 6. 终端1鉴权
+0102001301388888888800663031333838383838383838385f61757468656413
 
-7. 服务端查询终端1参数
-8. 服务端设置终端1参数
-9. 服务端查询终端1参数
-10. 终端1位置信息汇报
+7. 终端1位置信息汇报
+0200001601388888888800660000000200000002000000010000000200010001000149
+
+8. 服务端查询终端1参数
+<?xml version="1.0" ?><com.ant.jt808.base.dto.jt808.basics.Message><body class="com.ant.jt808.base.dto.jt808.ParameterSetting"><parameters></parameters></body><type>33028</type><bodyProperties>1</bodyProperties><mobileNumber>013888888888</mobileNumber><serialNumber>102</serialNumber><bodyLength>1</bodyLength><encryptionType>0</encryptionType><subPackage>false</subPackage><reservedBit>0</reservedBit></com.ant.jt808.base.dto.jt808.basics.Message>
+
+
+
+
 
 
 --------

@@ -1,9 +1,13 @@
 package org.yzh.jt808.codec;
 
+import com.ant.jt808.base.common.MessageId;
 import com.ant.jt808.base.dto.jt808.*;
 import com.ant.jt808.base.dto.jt808.basics.Message;
+import com.ant.jt808.base.dto.jt808.basics.TerminalParameter;
 import com.ant.jt808.base.message.AbstractBody;
 import com.ant.jt808.base.message.AbstractMessage;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -14,6 +18,7 @@ import org.yzh.framework.commons.transform.JsonUtils;
 import org.yzh.web.jt808.codec.JT808MessageDecoder;
 import org.yzh.web.jt808.codec.JT808MessageEncoder;
 
+import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,8 +104,24 @@ public class CoderTest {
     // 位置信息汇报 0x0200
     @Test
     public void testPositionReport() {
-        String hex1 = "0200006a064762924976014d000003500004100201d9f1230743425e000300a6ffff190403133450000000250400070008000000e2403836373733323033383535333838392d627566322d323031392d30342d30332d31332d33342d34392d3735372d70686f6e652d2e6a706700000020000c14cde78d";
-        selfCheck(PositionReport.class, hex1);
+//        String hex1 = "0200006a064762924976014d000003500004100201d9f1230743425e000300a6ffff190403133450000000250400070008000000e2403836373733323033383535333838392d627566322d323031392d30342d30332d31332d33342d34392d3735372d70686f6e652d2e6a706700000020000c14cde78d";
+//        selfCheck(PositionReport.class, hex1);
+        PositionReport report = new PositionReport();
+        report.setDirection(1);
+        report.setLatitude(1);
+        report.setLongitude(2);
+        report.setSpeed(1);
+        report.setWarningMark(2);
+        report.setStatus(2);
+        report.setAltitude(1);
+
+        Message<PositionReport> msg = new Message<>();
+        msg.setType(0x0200);
+        msg.setMobileNumber("013888888888");
+        msg.setSerialNumber(102);
+        msg.setBody(report);
+
+        selfCheck(msg);
     }
 
 
@@ -108,6 +129,21 @@ public class CoderTest {
     @Test
     public void testRegisterResult() {
         selfCheck(RegisterResult.class, "8001001601388888888800000065003031333838383838383838385f61757468656497");
+    }
+
+    // 终端鉴权 0x0102
+    @Test
+    public void testAuth() {
+        Authentication authentication = new Authentication();
+        authentication.setToken("013888888888_authed");
+
+        Message<Authentication> msg = new Message<>();
+        msg.setType(0x0102);
+        msg.setMobileNumber("013888888888");
+        msg.setSerialNumber(102);
+        msg.setBody(authentication);
+
+        selfCheck(msg);
     }
 
 
@@ -256,5 +292,20 @@ public class CoderTest {
 //        selfCheck(Register.class, "0100002d0138888888880065000000014d414b4552202050524f424f4f4b207a68616e36362d616d640000000000413101b4a841383838383809");
 
         selfCheck(register1());
+    }
+
+    // 查询终端参数
+    @Test
+    public void terminalParameter(){
+        ParameterSetting body = new ParameterSetting();
+        body.setParameters(new ArrayList<>());
+        Message<ParameterSetting> msg = new Message<>();
+        msg.setType(MessageId.查询终端参数);
+        msg.setMobileNumber("013888888888");
+        msg.setSerialNumber(102);
+        msg.setBody(body);
+        selfCheck(msg);
+
+        System.out.println(new XStream(new StaxDriver()).toXML(msg) );
     }
 }
