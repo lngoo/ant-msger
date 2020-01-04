@@ -19,6 +19,7 @@
 8. 服务端查询终端1参数
 <?xml version="1.0" ?><com.ant.jt808.base.dto.jt808.basics.Message><body class="com.ant.jt808.base.dto.jt808.ParameterSetting"><parameters></parameters></body><type>33028</type><bodyProperties>1</bodyProperties><mobileNumber>013888888888</mobileNumber><serialNumber>102</serialNumber><bodyLength>1</bodyLength><encryptionType>0</encryptionType><subPackage>false</subPackage><reservedBit>0</reservedBit></com.ant.jt808.base.dto.jt808.basics.Message>
 
+a:b:c:response
 
 
 

@@ -30,7 +30,7 @@ public class ResponseDataPuller {
     @Value("${redis.key.queue.response}")
     String redisKey;
 
-    private XStream xstream = new XStream(new StaxDriver());
+    private XStream xstream = new XStream();
 
     public void doJob() {
 
