@@ -107,7 +107,7 @@ public class CoderTest {
     // 终端注册应答 0x8100
     @Test
     public void testRegisterResult() {
-        selfCheck(RegisterResult.class, "8100000306476292482425b4000201cd");
+        selfCheck(RegisterResult.class, "8001001601388888888800000065003031333838383838383838385f61757468656497");
     }
 
 

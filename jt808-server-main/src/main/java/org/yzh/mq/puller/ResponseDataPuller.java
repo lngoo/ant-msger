@@ -1,6 +1,12 @@
 package org.yzh.mq.puller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.ant.jt808.base.dto.jt808.Authentication;
 import com.ant.jt808.base.dto.jt808.basics.Message;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +19,8 @@ import org.yzh.framework.commons.transform.JsonUtils;
 import org.yzh.framework.session.Session;
 import org.yzh.framework.session.SessionManager;
 
+import java.lang.reflect.Type;
+
 @Component
 public class ResponseDataPuller {
 
@@ -21,6 +29,8 @@ public class ResponseDataPuller {
 
     @Value("${redis.key.queue.response}")
     String redisKey;
+
+    private XStream xstream = new XStream(new StaxDriver());
 
     public void doJob() {
 
@@ -41,7 +51,10 @@ public class ResponseDataPuller {
                             System.out.println("### no response data. sleep 3 seconds." + System.currentTimeMillis());
                         } else {
                             System.out.println("### got one data." + System.currentTimeMillis());
-                            Message message = JsonUtils.toObj(Message.class, data);
+//                            Message message = JsonUtils.toObj(Message.class, data);
+//                            Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
+//                            message.setSerialNumber(session.currentFlowId());
+                            Message message = (Message) xstream.fromXML(data);
                             Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
                             message.setSerialNumber(session.currentFlowId());
 
