@@ -1,8 +1,9 @@
 package org.yzh.framework.codec;
 
-import com.ant.jt808.base.annotation.*;
+import com.ant.jt808.base.annotation.Property;
 import com.ant.jt808.base.enums.DataType;
-import com.ant.jt808.base.message.*;
+import com.ant.jt808.base.message.AbstractBody;
+import com.ant.jt808.base.message.AbstractMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -50,6 +51,13 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         ByteBuf in = msg.content();
+
+        // 去掉首尾的7e标识，如果没有标识，则认为消息不对，直接不处理了
+        in = checkAndRemove7E(in);
+        if (in == null) {
+            return;
+        }
+
         int type = getType(in);
         Handler handler = handlerMapper.getHandler(type);
 
@@ -72,6 +80,18 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
         out.add(decodeResult);
 
         in.skipBytes(in.readableBytes());
+    }
+
+    private ByteBuf checkAndRemove7E(ByteBuf in) {
+        int stand = Integer.parseInt("7E", 16);
+        byte[] fristByte = ByteBufUtil.getBytes(in, 0, 1);
+        byte[] endByte = ByteBufUtil.getBytes(in, in.readableBytes() - 1, 1);
+        if (stand == fristByte[0]
+                && stand == endByte[0]) {
+            return in.slice(1, in.readableBytes() - 2);
+        } else {
+            return null;
+        }
     }
 
 //    @Override
@@ -104,7 +124,9 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
 //        in.skipBytes(in.readableBytes());
 //    }
 
-    /** 解析 */
+    /**
+     * 解析
+     */
     public <T extends AbstractBody> AbstractMessage<T> decode(ByteBuf buf, Class<? extends AbstractMessage> clazz, Class<T> bodyClass) {
         buf = unEscape(buf);
 
@@ -121,13 +143,19 @@ public abstract class MessageDecoder extends DatagramPacketDecoder {
         return message;
     }
 
-    /** 获取消息类型 */
+    /**
+     * 获取消息类型
+     */
     public abstract int getType(ByteBuf buf);
 
-    /** 反转义 */
+    /**
+     * 反转义
+     */
     public abstract ByteBuf unEscape(ByteBuf buf);
 
-    /** 校验 */
+    /**
+     * 校验
+     */
     public abstract boolean check(ByteBuf buf);
 
     public <T> T decode(ByteBuf buf, Class<T> targetClass) {

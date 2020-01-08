@@ -2,11 +2,9 @@ package org.yzh.framework;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
@@ -58,8 +56,8 @@ public class UDPServer {
                     @Override
                     protected void initChannel(NioDatagramChannel ch) throws Exception {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(30, 0, 0, TimeUnit.MINUTES));
-                        // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
-                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
+//                        // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
+//                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
 //                        ch.pipeline().addLast(new UdpServerHandler());
                         ch.pipeline().addLast(new JT808MessageDecoder(new MessageToMessageDecoder<ByteBuf>() {
                             @Override
