@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>jt808-server-base</module>
-        <module>jt808-server-main</module>
+        <module>ant-msger-base</module>
+        <module>ant-msger-main</module>
     </modules>
 
     <parent>
@@ -14,8 +14,8 @@
         <relativePath></relativePath>
     </parent>
 
-    <groupId>org.yzh</groupId>
-    <artifactId>jt808-server</artifactId>
+    <groupId>com.ant</groupId>
+    <artifactId>ant-msger</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
