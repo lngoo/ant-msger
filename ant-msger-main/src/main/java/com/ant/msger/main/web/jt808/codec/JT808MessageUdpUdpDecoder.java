@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import com.ant.msger.main.framework.codec.MessageDecoder;
+import com.ant.msger.main.framework.codec.MessageUdpDecoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +16,14 @@ import java.util.List;
  *
  * @author zhihao.ye (yezhihaoo@gmail.com)
  */
-public class JT808MessageDecoder extends MessageDecoder {
+public class JT808MessageUdpUdpDecoder extends MessageUdpDecoder {
 
 
-    public JT808MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
+    public JT808MessageUdpUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
         super(decoder);
     }
 
-    public JT808MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
+    public JT808MessageUdpUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
         super(decoder, handlerMapper);
     }
 

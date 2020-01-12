@@ -10,7 +10,7 @@ import com.ant.msger.main.framework.spring.SpringHandlerMapper;
 public class NettyConfig {
 
     @Bean
-    public UDPServer TCPServer() {
+    public UDPServer udpServer() {
 //        TCPServer server = new TCPServer(7611, (byte) 0x7e, handlerMapper());
         UDPServer server = new UDPServer(7612, (byte) 0x7e, handlerMapper());
         server.startServer();

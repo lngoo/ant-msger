@@ -35,15 +35,15 @@ import static com.ant.msger.base.enums.DataType.*;
  * @author zhihao.ye (yezhihaoo@gmail.com)
  * @home http://gitee.com/yezhihao/msger-server
  */
-public abstract class MessageDecoder extends DatagramPacketDecoder {
+public abstract class MessageUdpDecoder extends DatagramPacketDecoder {
 
     private HandlerMapper handlerMapper;
 
-    public MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
+    public MessageUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder) {
         super(decoder);
     }
 
-    public MessageDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
+    public MessageUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
         super(decoder);
         this.handlerMapper = handlerMapper;
     }
