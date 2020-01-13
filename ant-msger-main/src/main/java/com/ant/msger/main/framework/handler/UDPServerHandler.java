@@ -1,4 +1,4 @@
-package com.ant.msger.main.framework;
+package com.ant.msger.main.framework.handler;
 
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;

@@ -6,7 +6,6 @@ import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.transform.JsonUtils;
-import com.ant.msger.main.web.jt808.codec.JT808MessageUdpUdpDecoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;

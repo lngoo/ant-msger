@@ -1,4 +1,4 @@
-package com.ant.msger.main.framework;
+package com.ant.msger.main.framework.handler;
 
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.log.Logger;
@@ -15,43 +15,31 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 
 import java.lang.reflect.Type;
+import java.net.InetSocketAddress;
 
-public class TCPServerHandler extends ChannelInboundHandlerAdapter {
+public class TCPServerHandler extends BaseHandler {
 
-    private final SessionManager sessionManager = SessionManager.getInstance();
-
-    private Logger logger;
-
-    private HandlerMapper handlerMapper;
-
-    public TCPServerHandler(HandlerMapper handlerMapper) {
+    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = new Logger();
     }
 
-    public TCPServerHandler(HandlerMapper handlerMapper, Logger logger) {
+    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes, Logger logger) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = logger;
     }
-
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             AbstractMessage messageRequest = (AbstractMessage) msg;
             Channel channel = ctx.channel();
+            InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
 
-            Handler handler = handlerMapper.getHandler(messageRequest.getType());
-
-            Type[] types = handler.getTargetParameterTypes();
-            Session session = sessionManager.getBySessionId(Session.buildId(channel));
-
-            AbstractMessage messageResponse;
-            if (types.length == 1) {
-                messageResponse = handler.invoke(messageRequest);
-            } else {
-                messageResponse = handler.invoke(messageRequest, session);
-            }
+            // 消息事件处理
+            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress);
 
             if (messageResponse != null) {
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();

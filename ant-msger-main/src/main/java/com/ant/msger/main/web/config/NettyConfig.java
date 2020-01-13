@@ -28,13 +28,13 @@ public class NettyConfig {
         return server;
     }
 
-//    @Bean
-//    @ConditionalOnExpression("${system.tcp.enable:false}")
-//    public UDPServer tcpServer() {
-//        UDPServer server = new UDPServer(udpPort, (byte) 0x7e, handlerMapper(), sessionMinutes);
-//        server.startServer();
-//        return server;
-//    }
+    @Bean
+    @ConditionalOnExpression("${system.tcp.enable:false}")
+    public UDPServer tcpServer() {
+        UDPServer server = new UDPServer(udpPort, (byte) 0x7e, handlerMapper(), sessionMinutes);
+        server.startServer();
+        return server;
+    }
 
     @Bean
     public HandlerMapper handlerMapper() {

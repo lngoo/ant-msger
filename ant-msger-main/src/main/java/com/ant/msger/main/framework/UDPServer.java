@@ -1,5 +1,6 @@
 package com.ant.msger.main.framework;
 
+import com.ant.msger.main.framework.handler.UDPServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.web.jt808.codec.JT808MessageUdpDecoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
@@ -61,7 +62,6 @@ public class UDPServer {
                         ch.pipeline().addLast(new JT808MessageUdpDecoder(new MessageToMessageDecoder<ByteBuf>() {
                             @Override
                             protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-
                             }
                         }, handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
