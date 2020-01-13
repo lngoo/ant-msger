@@ -1,7 +1,7 @@
 package com.ant.msger.main.framework;
 
 import com.ant.msger.main.framework.mapping.HandlerMapper;
-import com.ant.msger.main.web.jt808.codec.JT808MessageUdpUdpDecoder;
+import com.ant.msger.main.web.jt808.codec.JT808MessageUdpDecoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -58,7 +58,7 @@ public class UDPServer {
 //                        // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
 //                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
 //                        ch.pipeline().addLast(new UdpServerHandler());
-                        ch.pipeline().addLast(new JT808MessageUdpUdpDecoder(new MessageToMessageDecoder<ByteBuf>() {
+                        ch.pipeline().addLast(new JT808MessageUdpDecoder(new MessageToMessageDecoder<ByteBuf>() {
                             @Override
                             protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
 
