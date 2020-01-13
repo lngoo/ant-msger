@@ -3,6 +3,7 @@ package com.ant.msger.main.framework;
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
+import com.ant.msger.main.framework.handler.BaseHandler;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
@@ -19,60 +20,36 @@ import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.web.config.SessionKey;
 
 import java.lang.reflect.Type;
+import java.net.InetSocketAddress;
 
 import static com.ant.msger.base.common.MessageId.平台通用应答;
 
-public class UDPServerHandler extends ChannelInboundHandlerAdapter {
+public class UDPServerHandler extends BaseHandler {
 
-    private final SessionManager sessionManager = SessionManager.getInstance();
-
-    private Logger logger;
-
-    private HandlerMapper handlerMapper;
-
-    public UDPServerHandler(HandlerMapper handlerMapper) {
+    public UDPServerHandler(HandlerMapper handlerMapper, int sessionMinutes) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = new Logger();
     }
 
-    public UDPServerHandler(HandlerMapper handlerMapper, Logger logger) {
+    public UDPServerHandler(HandlerMapper handlerMapper, int sessionMinutes, Logger logger) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = logger;
     }
-
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             DecodeResult decodeResult = (DecodeResult) msg;
             AbstractMessage messageRequest = decodeResult.getMessage();
-            Channel channel = ctx.channel();
+            InetSocketAddress socketAddress = decodeResult.getDatagramPacket().sender();
 
-            Handler handler = handlerMapper.getHandler(messageRequest.getType());
-
-            Type[] types = handler.getTargetParameterTypes();
-
-            AbstractMessage messageResponse;
-            if (types.length == 1) {
-                messageResponse = handler.invoke(messageRequest);
-            } else if (StringUtils.equals(types[1].getTypeName(), DatagramPacket.class.getName())) {
-                messageResponse = handler.invoke(messageRequest, decodeResult.getDatagramPacket());
-            } else {
-                Session session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
-                // 5分钟过期,过期了直接返回失败
-                if (null == session
-                        || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60 * 5) {
-                    // 通用失败应答
-                    CommonResult result = new CommonResult(messageRequest.getType(), ((Message)messageRequest).getSerialNumber(), CommonResult.Fial);
-                    // 连接已丢失，未重连前，返回的序列号全为1
-                    messageResponse = new Message(平台通用应答, 1, ((Message)messageRequest).getMobileNumber(), result);
-                } else {
-                    session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-                    messageResponse = handler.invoke(messageRequest, session);
-                }
-            }
+            // 消息事件处理
+            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress);
 
             if (messageResponse != null) {
+                Channel channel = ctx.channel();
                 channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
                 channel.disconnect();
@@ -82,10 +59,6 @@ public class UDPServerHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private String getMobileNum(AbstractMessage messageRequest) {
-        Message message = (Message) messageRequest;
-        return message.getMobileNumber();
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

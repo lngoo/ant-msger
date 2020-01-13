@@ -13,7 +13,6 @@ import com.ant.msger.main.web.config.SessionKey;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import static com.ant.msger.base.common.MessageId.*;
@@ -154,10 +154,10 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端注册, desc = "终端注册")
-    public Message<RegisterResult> register(Message<Register> message, DatagramPacket packet) {
+    public Message<RegisterResult> register(Message<Register> message, InetSocketAddress socketAddress) {
         Register body = message.getBody();
         //TODO
-        Session session = initSession(message, packet);
+        Session session = initSession(message, socketAddress);
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
@@ -167,11 +167,11 @@ public class JT808Endpoint {
 //        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
 
-    private Session initSession(Message<Register> message, DatagramPacket packet) {
+    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
         Session session = new Session();
         session.setTerminalId(message.getMobileNumber());
         session.setId(message.getMobileNumber());
-        session.setSocketAddress(packet.sender());
+        session.setSocketAddress(socketAddress);
         session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
@@ -185,13 +185,13 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端鉴权, desc = "终端鉴权")
-    public Message authentication(Message<Authentication> message, DatagramPacket packet) {
+    public Message authentication(Message<Authentication> message, InetSocketAddress socketAddress) {
         Authentication body = message.getBody();
         //TODO
 //        session.setTerminalId(message.getMobileNumber());
 //        sessionManager.put(Session.buildId(session.getChannel()), session);
 
-        Session session = reCreateSession(message, packet);
+        Session session = reCreateSession(message, socketAddress);
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
@@ -201,11 +201,11 @@ public class JT808Endpoint {
 //        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
 
-    private Session reCreateSession(Message<Authentication> message, DatagramPacket packet) {
+    private Session reCreateSession(Message<Authentication> message, InetSocketAddress socketAddress) {
         Session session = new Session();
         session.setTerminalId(message.getMobileNumber());
         session.setId(message.getMobileNumber());
-        session.setSocketAddress(packet.sender());
+        session.setSocketAddress(socketAddress);
         session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;

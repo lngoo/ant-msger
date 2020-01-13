@@ -26,16 +26,15 @@ public class UDPServer {
     private EventLoopGroup workerGroup = null;
     private int port;
     private byte delimiter;
+    private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
 
-    public UDPServer() {
-    }
-
-    public UDPServer(int port, byte delimiter, HandlerMapper handlerMapper) {
+    public UDPServer(int port, byte delimiter, HandlerMapper handlerMapper, int sessionMinutes) {
         this.port = port;
         this.delimiter = delimiter;
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
     }
 
     private void bind() throws Exception {
@@ -66,7 +65,7 @@ public class UDPServer {
                             }
                         }, handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
-                        ch.pipeline().addLast(new UDPServerHandler(handlerMapper));
+                        ch.pipeline().addLast(new UDPServerHandler(handlerMapper, sessionMinutes));
 
                     }
 
