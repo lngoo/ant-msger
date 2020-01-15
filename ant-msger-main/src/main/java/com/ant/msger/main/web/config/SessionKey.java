@@ -5,6 +5,6 @@ public interface SessionKey {
     String USER = "user";
     String USER_ID = "userId";
 
-    String GLOBAL_CHANNEL_KEY = "-000-";
+    String UDP_GLOBAL_CHANNEL_KEY = "-udp-000-";
 
 }

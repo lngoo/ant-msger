@@ -154,10 +154,12 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端注册, desc = "终端注册")
-    public Message<RegisterResult> register(Message<Register> message, InetSocketAddress socketAddress) {
-        Register body = message.getBody();
-        //TODO
-        Session session = initSession(message, socketAddress);
+    public Message<RegisterResult> register(Message<Register> message, Session session) {
+//        Register body = message.getBody();
+//        //TODO
+//        if (session == null) {
+//            session = initSession(message, socketAddress);
+//        }
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
@@ -166,16 +168,16 @@ public class JT808Endpoint {
 //        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
 //        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
-
-    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
-        Session session = new Session();
-        session.setTerminalId(message.getMobileNumber());
-        session.setId(message.getMobileNumber());
-        session.setSocketAddress(socketAddress);
-        session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
-        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-        return session;
-    }
+//
+//    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
+//        Session session = new Session();
+//        session.setTerminalId(message.getMobileNumber());
+//        session.setId(message.getMobileNumber());
+//        session.setSocketAddress(socketAddress);
+//        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+//        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+//        return session;
+//    }
 
     @Mapping(types = 终端注销, desc = "终端注销")
     public Message 终端注销(Message message, Session session) {
@@ -185,13 +187,15 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端鉴权, desc = "终端鉴权")
-    public Message authentication(Message<Authentication> message, InetSocketAddress socketAddress) {
-        Authentication body = message.getBody();
+    public Message authentication(Message<Authentication> message, InetSocketAddress socketAddress, Session session) {
+//        Authentication body = message.getBody();
         //TODO
 //        session.setTerminalId(message.getMobileNumber());
 //        sessionManager.put(Session.buildId(session.getChannel()), session);
-
-        Session session = reCreateSession(message, socketAddress);
+        if (null == session) {
+            session = reCreateSession(message, socketAddress);
+        }
+        session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
@@ -203,10 +207,9 @@ public class JT808Endpoint {
 
     private Session reCreateSession(Message<Authentication> message, InetSocketAddress socketAddress) {
         Session session = new Session();
-        session.setTerminalId(message.getMobileNumber());
         session.setId(message.getMobileNumber());
         session.setSocketAddress(socketAddress);
-        session.setChannel(sessionManager.getBySessionId(SessionKey.GLOBAL_CHANNEL_KEY).getChannel());
+        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
     }

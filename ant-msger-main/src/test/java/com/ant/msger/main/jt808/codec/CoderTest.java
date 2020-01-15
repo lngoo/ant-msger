@@ -7,6 +7,8 @@ import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.transform.JsonUtils;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
+import com.ant.msger.main.web.jt808.codec.JT808MessageTcpDecoder;
+import com.ant.msger.main.web.jt808.codec.JT808MessageUdpDecoder;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import io.netty.buffer.ByteBuf;
@@ -28,12 +30,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CoderTest {
 
-    private static final JT808MessageUdpUdpDecoder decoder = new JT808MessageUdpUdpDecoder(new MessageToMessageDecoder<ByteBuf>() {
-        @Override
-        protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-
-        }
-    });
+    private static final JT808MessageTcpDecoder decoder = new JT808MessageTcpDecoder();
 
     private static final JT808MessageEncoder encoder = new JT808MessageEncoder();
 

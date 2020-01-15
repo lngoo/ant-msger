@@ -19,15 +19,13 @@ import java.net.InetSocketAddress;
 
 public class TCPServerHandler extends BaseHandler {
 
-    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes) {
+    public TCPServerHandler(HandlerMapper handlerMapper) {
         this.handlerMapper = handlerMapper;
-        this.sessionMinutes = sessionMinutes;
         this.logger = new Logger();
     }
 
-    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes, Logger logger) {
+    public TCPServerHandler(HandlerMapper handlerMapper, Logger logger) {
         this.handlerMapper = handlerMapper;
-        this.sessionMinutes = sessionMinutes;
         this.logger = logger;
     }
 
@@ -36,10 +34,11 @@ public class TCPServerHandler extends BaseHandler {
         try {
             AbstractMessage messageRequest = (AbstractMessage) msg;
             Channel channel = ctx.channel();
-            InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
+//            InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
+            Session session = sessionManager.getBySessionId(Session.buildId(channel));
 
             // 消息事件处理
-            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress);
+            AbstractMessage messageResponse = consumerMessage(messageRequest, null, session);
 
             if (messageResponse != null) {
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
@@ -53,14 +52,14 @@ public class TCPServerHandler extends BaseHandler {
     public void channelActive(ChannelHandlerContext ctx) {
         Session session = Session.buildSession(ctx.channel());
         sessionManager.put(session.getId(), session);
-        logger.logEvent("终端连接", session);
+        logger.logEvent("TCP终端连接", session);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         String sessionId = Session.buildId(ctx.channel());
         Session session = sessionManager.removeBySessionId(sessionId);
-        logger.logEvent("断开连接", session);
+        logger.logEvent("TCP断开连接", session);
         ctx.channel().close();
         // ctx.close();
     }
@@ -69,7 +68,7 @@ public class TCPServerHandler extends BaseHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
         String sessionId = Session.buildId(ctx.channel());
         Session session = sessionManager.getBySessionId(sessionId);
-        logger.logEvent("发生异常", session);
+        logger.logEvent("TCP发生异常", session);
         e.printStackTrace();
     }
 
@@ -79,7 +78,7 @@ public class TCPServerHandler extends BaseHandler {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
                 Session session = this.sessionManager.removeBySessionId(Session.buildId(ctx.channel()));
-                logger.logEvent("服务器主动断开连接", session);
+                logger.logEvent("TCP服务器主动断开连接", session);
                 ctx.close();
             }
         }

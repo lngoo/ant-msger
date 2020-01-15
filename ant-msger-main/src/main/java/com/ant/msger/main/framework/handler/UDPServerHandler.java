@@ -1,28 +1,17 @@
 package com.ant.msger.main.framework.handler;
 
-import com.ant.msger.base.dto.jt808.CommonResult;
-import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
-import com.ant.msger.main.framework.handler.BaseHandler;
-import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
-import com.ant.msger.main.framework.session.SessionManager;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.ReferenceCountUtil;
-import org.apache.commons.lang3.StringUtils;
 import com.ant.msger.main.framework.commons.bean.DecodeResult;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.web.config.SessionKey;
 
-import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
-
-import static com.ant.msger.base.common.MessageId.平台通用应答;
 
 public class UDPServerHandler extends BaseHandler {
 
@@ -46,7 +35,7 @@ public class UDPServerHandler extends BaseHandler {
             InetSocketAddress socketAddress = decodeResult.getDatagramPacket().sender();
 
             // 消息事件处理
-            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress);
+            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress, null);
 
             if (messageResponse != null) {
                 Channel channel = ctx.channel();
@@ -64,8 +53,8 @@ public class UDPServerHandler extends BaseHandler {
     public void channelActive(ChannelHandlerContext ctx) {
         Session session = new Session();
         session.setChannel(ctx.channel());
-        sessionManager.put(SessionKey.GLOBAL_CHANNEL_KEY, session);
-        logger.logEvent("终端连接", session);
+        sessionManager.put(SessionKey.UDP_GLOBAL_CHANNEL_KEY, session);
+        logger.logEvent("UDP终端连接", session);
     }
 
 //    @Override

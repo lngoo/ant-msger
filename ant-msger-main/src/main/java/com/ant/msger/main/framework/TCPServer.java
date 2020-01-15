@@ -30,18 +30,16 @@ public class TCPServer {
     private EventLoopGroup workerGroup = null;
     private int port;
     private byte delimiter;
-    private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
 
     public TCPServer() {
     }
 
-    public TCPServer(int port, byte delimiter, HandlerMapper handlerMapper, int sessionMinutes) {
+    public TCPServer(int port, byte delimiter, HandlerMapper handlerMapper) {
         this.port = port;
         this.delimiter = delimiter;
         this.handlerMapper = handlerMapper;
-        this.sessionMinutes = sessionMinutes;
     }
 
     private void bind() throws Exception {

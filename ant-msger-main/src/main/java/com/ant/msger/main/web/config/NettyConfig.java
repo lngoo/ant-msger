@@ -1,5 +1,6 @@
 package com.ant.msger.main.web.config;
 
+import com.ant.msger.main.framework.TCPServer;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -30,8 +31,8 @@ public class NettyConfig {
 
     @Bean
     @ConditionalOnExpression("${system.tcp.enable:false}")
-    public UDPServer tcpServer() {
-        UDPServer server = new UDPServer(udpPort, (byte) 0x7e, handlerMapper(), sessionMinutes);
+    public TCPServer tcpServer() {
+        TCPServer server = new TCPServer(tcpPort, (byte) 0x7e, handlerMapper());
         server.startServer();
         return server;
     }
