@@ -1,5 +1,8 @@
 package com.ant.msger.main.mq.puller;
 
+import com.ant.msger.base.common.MessageId;
+import com.ant.msger.base.dto.jt808.Authentication;
+import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.main.framework.handler.Protocol;
 import com.ant.msger.main.framework.session.Session;
@@ -49,12 +52,15 @@ public class ResponseDataPuller {
                             System.out.println("### got one data." + System.currentTimeMillis());
                             Message message = (Message) xstream.fromXML(data);
 
-                            SessionManager sessionManager = SessionManager.getInstance();
-                            // 先按UDP取
-                            Session session = sessionManager.getByMobileNumber(message.getMobileNumber());
-                            if (null == session) {
-                                session = sessionManager.getBySessionId();
+                            if (message.getBody() instanceof CommonResult) {
+                                CommonResult commonResult = (CommonResult) message.getBody();
+                                if (commonResult.getReplyId() == MessageId.终端鉴权
+                                    && commonResult.getResultCode() == CommonResult.Success) {
+                                    // TODO 终端session已授权
+                                }
                             }
+
+                            Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
                             message.setSerialNumber(session.currentFlowId());
 
                             // 发送消息

@@ -160,6 +160,7 @@ public class JT808Endpoint {
 //        if (session == null) {
 //            session = initSession(message, socketAddress);
 //        }
+        session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis

@@ -3,7 +3,7 @@ package com.ant.msger.main.framework;
 import com.ant.msger.main.framework.handler.TCPServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
-import com.ant.msger.main.web.jt808.codec.JT808MessageTcpDecoder1;
+import com.ant.msger.main.web.jt808.codec.JT808MessageTcpDecoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -56,7 +56,7 @@ public class TCPServer {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(30, 0, 0, TimeUnit.MINUTES));
                         // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
                         ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
-                        ch.pipeline().addLast(new JT808MessageTcpDecoder1(handlerMapper));
+                        ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new TCPServerHandler(handlerMapper));
                     }
