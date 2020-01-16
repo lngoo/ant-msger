@@ -1,5 +1,6 @@
 package com.ant.msger.main.framework.handler;
 
+import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
@@ -33,9 +34,10 @@ public class UDPServerHandler extends BaseHandler {
             DecodeResult decodeResult = (DecodeResult) msg;
             AbstractMessage messageRequest = decodeResult.getMessage();
             InetSocketAddress socketAddress = decodeResult.getDatagramPacket().sender();
+            Session session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
 
             // 消息事件处理
-            AbstractMessage messageResponse = consumerMessage(messageRequest, socketAddress, null);
+            AbstractMessage messageResponse = consumerMessage(Protocol.UDP, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
                 Channel channel = ctx.channel();
@@ -55,6 +57,11 @@ public class UDPServerHandler extends BaseHandler {
         session.setChannel(ctx.channel());
         sessionManager.put(SessionKey.UDP_GLOBAL_CHANNEL_KEY, session);
         logger.logEvent("UDP终端连接", session);
+    }
+
+    private String getMobileNum(AbstractMessage messageRequest) {
+        Message message = (Message) messageRequest;
+        return message.getMobileNumber();
     }
 
 //    @Override

@@ -34,11 +34,11 @@ public class TCPServerHandler extends BaseHandler {
         try {
             AbstractMessage messageRequest = (AbstractMessage) msg;
             Channel channel = ctx.channel();
-//            InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
+            InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
             Session session = sessionManager.getBySessionId(Session.buildId(channel));
 
             // 消息事件处理
-            AbstractMessage messageResponse = consumerMessage(messageRequest, null, session);
+            AbstractMessage messageResponse = consumerMessage(Protocol.TCP, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
                 ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
@@ -51,6 +51,7 @@ public class TCPServerHandler extends BaseHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Session session = Session.buildSession(ctx.channel());
+        session.setProtocol(Protocol.TCP);
         sessionManager.put(session.getId(), session);
         logger.logEvent("TCP终端连接", session);
     }

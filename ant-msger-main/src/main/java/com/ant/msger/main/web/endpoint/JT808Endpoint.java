@@ -156,7 +156,7 @@ public class JT808Endpoint {
     @Mapping(types = 终端注册, desc = "终端注册")
     public Message<RegisterResult> register(Message<Register> message, Session session) {
 //        Register body = message.getBody();
-//        //TODO
+        //TODO
 //        if (session == null) {
 //            session = initSession(message, socketAddress);
 //        }
@@ -168,7 +168,7 @@ public class JT808Endpoint {
 //        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
 //        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
-//
+
 //    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
 //        Session session = new Session();
 //        session.setTerminalId(message.getMobileNumber());
@@ -187,14 +187,15 @@ public class JT808Endpoint {
     }
 
     @Mapping(types = 终端鉴权, desc = "终端鉴权")
-    public Message authentication(Message<Authentication> message, InetSocketAddress socketAddress, Session session) {
+    public Message authentication(Message<Authentication> message, Session session) {
 //        Authentication body = message.getBody();
         //TODO
 //        session.setTerminalId(message.getMobileNumber());
 //        sessionManager.put(Session.buildId(session.getChannel()), session);
-        if (null == session) {
-            session = reCreateSession(message, socketAddress);
-        }
+//        // UDP
+//        if (null == session.getId()) {
+//            session = reCreateSession(message, socketAddress);
+//        }
         session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
 
@@ -205,14 +206,14 @@ public class JT808Endpoint {
 //        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
     }
 
-    private Session reCreateSession(Message<Authentication> message, InetSocketAddress socketAddress) {
-        Session session = new Session();
-        session.setId(message.getMobileNumber());
-        session.setSocketAddress(socketAddress);
-        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
-        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-        return session;
-    }
+//    private Session reCreateSession(Message<Authentication> message, InetSocketAddress socketAddress) {
+//        Session session = new Session();
+//        session.setId(message.getMobileNumber());
+//        session.setSocketAddress(socketAddress);
+//        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+//        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+//        return session;
+//    }
 
     @Mapping(types = 终端升级结果通知, desc = "终端升级结果通知")
     public Message 终端升级结果通知(Message<TerminalUpgradeNotify> message, Session session) {

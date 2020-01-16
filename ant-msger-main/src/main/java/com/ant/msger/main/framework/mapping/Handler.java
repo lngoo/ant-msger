@@ -32,6 +32,10 @@ public class Handler {
         return targetMethod.getGenericParameterTypes();
     }
 
+    public Method getTargetMethod() {
+        return targetMethod;
+    }
+
     @Override
     public String toString() {
         return desc;

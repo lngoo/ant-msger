@@ -8,6 +8,7 @@ import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
+import com.ant.msger.main.web.config.SessionKey;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,19 +25,22 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
 
     protected HandlerMapper handlerMapper;
 
-    protected AbstractMessage consumerMessage(AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
+    protected AbstractMessage consumerMessage(Protocol protocol, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
         Handler handler = handlerMapper.getHandler(messageRequest.getType());
         Type[] types = handler.getTargetParameterTypes();
 
         AbstractMessage messageResponse;
-        if (types.length == 1) {
+        if (types.length == 1) { //handler.targetMethod.getName().equals("register")
             messageResponse = handler.invoke(messageRequest);
-        } else if (StringUtils.equals(types[1].getTypeName(), InetSocketAddress.class.getName())) {
-            // 只有鉴权一个接口使用
-            messageResponse = handler.invoke(messageRequest, socketAddress, session);
+        } else if (StringUtils.equals("register", handler.getTargetMethod().getName())
+            || StringUtils.equals("authentication", handler.getTargetMethod().getName())) {
+            if (protocol == Protocol.UDP) {
+                session = initUdpSession((Message) messageRequest, socketAddress);
+            }
+            messageResponse = handler.invoke(messageRequest, session);
         } else {
             // UDP特殊处理，加入session时长
-            if (null == session) {
+            if (protocol == Protocol.UDP) {
                 session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
                 // session是否过期了，过期了直接返回失败
                 if (null == session
@@ -48,14 +52,21 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 
-            // UDP 注册的时候也会走这
-            if (null != session) {
-                session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-            }
-
+            session.setLastCommunicateTimeStamp(System.currentTimeMillis());
             messageResponse = handler.invoke(messageRequest, session);
         }
         return messageResponse;
+    }
+
+    private Session initUdpSession(Message message, InetSocketAddress socketAddress) {
+        Session session = new Session();
+        session.setTerminalId(message.getMobileNumber());
+        session.setId(message.getMobileNumber());
+        session.setSocketAddress(socketAddress);
+        session.setProtocol(Protocol.UDP);
+        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+        return session;
     }
 
     private String getMobileNum(AbstractMessage messageRequest) {

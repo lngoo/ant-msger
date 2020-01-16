@@ -1,6 +1,7 @@
 package com.ant.msger.main.mq.puller;
 
 import com.ant.msger.base.dto.jt808.basics.Message;
+import com.ant.msger.main.framework.handler.Protocol;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
 import com.thoughtworks.xstream.XStream;
@@ -33,31 +34,42 @@ public class ResponseDataPuller {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    while (true) {
-                        String data = stringRedisTemplate.opsForList().rightPop(redisKey);
-                        if (null == data) {
-                            // Sleep 3秒
+                while (true) {
+                    String data = stringRedisTemplate.opsForList().rightPop(redisKey);
+                    if (null == data) {
+                        // Sleep 3秒
+                        try {
                             Thread.sleep(3000);
-                            System.out.println("### no response data. sleep 3 seconds." + System.currentTimeMillis());
-                        } else {
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("### no response data. sleep 3 seconds." + System.currentTimeMillis());
+                    } else {
+                        try {
                             System.out.println("### got one data." + System.currentTimeMillis());
-//                            Message message = JsonUtils.toObj(Message.class, data);
-//                            Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
-//                            message.setSerialNumber(session.currentFlowId());
                             Message message = (Message) xstream.fromXML(data);
-                            Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
+
+                            SessionManager sessionManager = SessionManager.getInstance();
+                            // 先按UDP取
+                            Session session = sessionManager.getByMobileNumber(message.getMobileNumber());
+                            if (null == session) {
+                                session = sessionManager.getBySessionId();
+                            }
                             message.setSerialNumber(session.currentFlowId());
 
                             // 发送消息
                             Channel channel = session.getChannel();
-                            channel.connect(session.getSocketAddress());
-                            ChannelFuture future = channel.writeAndFlush(message).sync();
-                            channel.disconnect();
+                            if (Protocol.UDP == session.getProtocol()) {
+                                channel.connect(session.getSocketAddress());
+                                ChannelFuture future = channel.writeAndFlush(message).sync();
+                                channel.disconnect();
+                            } else {
+                                ChannelFuture future = channel.writeAndFlush(message).sync();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }).start();

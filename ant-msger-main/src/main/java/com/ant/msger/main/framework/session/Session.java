@@ -1,5 +1,6 @@
 package com.ant.msger.main.framework.session;
 
+import com.ant.msger.main.framework.handler.Protocol;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
@@ -7,6 +8,7 @@ import java.net.SocketAddress;
 
 public class Session {
 
+    private Protocol protocol;
     private String id;
     private String terminalId;
     private InetSocketAddress socketAddress = null;
@@ -37,6 +39,14 @@ public class Session {
         session.setTerminalId(terminalId);
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
     }
 
     public String getId() {
