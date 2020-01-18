@@ -1,6 +1,7 @@
 package com.ant.msger.main.web.config;
 
 import com.ant.msger.main.framework.TCPServer;
+import com.ant.msger.main.framework.WebsocketServer;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -21,6 +22,9 @@ public class NettyConfig {
     @Value("${system.tcp.port:7613}")
     private int tcpPort;
 
+    @Value("${system.websocket.port:7614}")
+    private int websocketPort;
+
     @Bean
     @ConditionalOnExpression("${system.udp.enable:true}")
     public UDPServer udpServer() {
@@ -33,6 +37,14 @@ public class NettyConfig {
     @ConditionalOnExpression("${system.tcp.enable:false}")
     public TCPServer tcpServer() {
         TCPServer server = new TCPServer(tcpPort, (byte) 0x7e, handlerMapper());
+        server.startServer();
+        return server;
+    }
+
+    @Bean
+    @ConditionalOnExpression("${system.websocket.enable:false}")
+    public WebsocketServer websocketServer() {
+        WebsocketServer server = new WebsocketServer(websocketPort, (byte) 0x7e, handlerMapper());
         server.startServer();
         return server;
     }

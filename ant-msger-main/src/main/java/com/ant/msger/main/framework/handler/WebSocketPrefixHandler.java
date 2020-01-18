@@ -1,6 +1,8 @@
 package com.ant.msger.main.framework.handler;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -14,6 +16,7 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import org.apache.log4j.Logger;
 
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -34,25 +37,7 @@ public class WebSocketPrefixHandler extends SimpleChannelInboundHandler<Object> 
             handlerWebSocketFrame(ctx, (WebSocketFrame) msg);
         }
     }
-//
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        //添加连接
-//        System.out.println("客户端加入连接："+ctx.channel());
-//        ChannelSupervise.addChannel(ctx.channel());
-//    }
-//
-//    @Override
-//    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        //断开连接
-//        System.out.println("客户端断开连接："+ctx.channel());
-//        ChannelSupervise.removeChannel(ctx.channel());
-//    }
-//
-//    @Override
-//    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-//        ctx.flush();
-//    }
+
     private void handlerWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame){
         // 判断是否关闭链路的指令
         if (frame instanceof CloseWebSocketFrame) {
@@ -71,6 +56,11 @@ public class WebSocketPrefixHandler extends SimpleChannelInboundHandler<Object> 
             throw new UnsupportedOperationException(String.format(
                     "%s frame types not supported", frame.getClass().getName()));
         }
+
+        String request = ((TextWebSocketFrame) frame).text();
+        ByteBuf result = new EmptyByteBuf(ctx.alloc()); ;
+        result.writeBytes(request.getBytes());
+        ctx.write(result);
     }
     /**
      * 唯一的一次http请求，用于创建websocket

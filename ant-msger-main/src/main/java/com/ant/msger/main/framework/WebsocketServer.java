@@ -61,8 +61,8 @@ public class WebsocketServer {
                         ch.pipeline().addLast(new HttpServerCodec());//设置解码器
                         // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
                         ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
-//                        ch.pipeline().addLast(new WebSocketPrefixHandler());
-                        ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper));
+                        ch.pipeline().addLast(new WebSocketPrefixHandler());
+                        ch.pipeline().addLast(new JT808MessageTcpDecoder());
                         //聚合器，使用websocket会用到
                         ch.pipeline().addLast(new HttpObjectAggregator(65536));
                         //用于大数据的分区传输

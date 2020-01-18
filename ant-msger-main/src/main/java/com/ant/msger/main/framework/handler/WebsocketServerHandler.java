@@ -33,8 +33,6 @@ public class WebsocketServerHandler extends BaseHandler {
             InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
             Session session = sessionManager.getBySessionId(Session.buildId(channel));
 
-
-
             // 消息事件处理
             AbstractMessage messageResponse = consumerMessage(Protocol.WEBSOCKET, messageRequest, socketAddress, session);
 
