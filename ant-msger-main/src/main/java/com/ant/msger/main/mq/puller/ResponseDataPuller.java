@@ -10,11 +10,14 @@ import com.ant.msger.main.framework.session.SessionManager;
 import com.thoughtworks.xstream.XStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.Date;
 
 @Component
 public class ResponseDataPuller {
@@ -69,6 +72,10 @@ public class ResponseDataPuller {
                                 channel.connect(session.getSocketAddress());
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
                                 channel.disconnect();
+                            } else if (Protocol.WEBSOCKET == session.getProtocol()) {
+                                // TODO websocket 返回数据给客户端
+//                                TextWebSocketFrame tws = new TextWebSocketFrame(message);
+//                                channel.writeAndFlush(tws).sync();
                             } else {
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
                             }
