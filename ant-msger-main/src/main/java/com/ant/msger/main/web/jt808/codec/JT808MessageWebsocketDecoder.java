@@ -2,17 +2,12 @@ package com.ant.msger.main.web.jt808.codec;
 
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
-import com.ant.msger.main.framework.codec.MessageTcpDecoder;
-import com.ant.msger.main.framework.commons.transform.ByteBufUtils;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,14 +15,14 @@ import java.util.List;
  *
  * @author zhihao.ye (yezhihaoo@gmail.com)
  */
-public class JT808MessageTcpDecoder extends ByteToMessageDecoder {
+public class JT808MessageWebsocketDecoder extends String {
     private HandlerMapper handlerMapper;
     private JT808MessageBaseDecoder baseDecoder = new JT808MessageBaseDecoder();
 
-    public JT808MessageTcpDecoder() {
+    public JT808MessageWebsocketDecoder() {
     }
 
-    public JT808MessageTcpDecoder(HandlerMapper handlerMapper) {
+    public JT808MessageWebsocketDecoder(HandlerMapper handlerMapper) {
         this.handlerMapper = handlerMapper;
     }
 
