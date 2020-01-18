@@ -1,5 +1,6 @@
 package com.ant.msger.main.framework.handler;
 
+import com.ant.msger.main.framework.commons.transform.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.EmptyByteBuf;
@@ -14,6 +15,7 @@ import io.netty.util.CharsetUtil;
 import org.apache.log4j.Logger;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Date;
 
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
@@ -54,9 +56,10 @@ public class WebSocketPrefixHandler extends ChannelInboundHandlerAdapter {
                     "%s frame types not supported", frame.getClass().getName()));
         }
 
-        String request = ((TextWebSocketFrame) frame).text();
-//        ByteBuf resp = Unpooled.copiedBuffer(request.getBytes());
-        ctx.fireChannelRead(request);
+        String text = ((TextWebSocketFrame) frame).text();
+        ByteBuf byteBuf = Unpooled.copiedBuffer(HexUtil.hexToByteArray(text));
+//        byteBuf.writeBytes(text.getBytes());
+        ctx.fireChannelRead(byteBuf);
     }
     /**
      * 唯一的一次http请求，用于创建websocket

@@ -37,6 +37,23 @@ public class JT808MessageBaseDecoder {
     }
 
     /**
+     * 去掉首尾的7e标识，如果没有标识，则认为消息不对，直接不处理了
+     * @param in
+     * @return
+     */
+    public ByteBuf checkAndRemove7E(ByteBuf in) {
+        int stand = Integer.parseInt("7E", 16);
+        byte[] fristByte = ByteBufUtil.getBytes(in, 0, 1);
+        byte[] endByte = ByteBufUtil.getBytes(in, in.readableBytes() - 1, 1);
+        if (stand == fristByte[0]
+                && stand == endByte[0]) {
+            return in.slice(1, in.readableBytes() - 2);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 将正文转换成消息体bean
      * @param in
      * @param handler

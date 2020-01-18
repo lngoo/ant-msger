@@ -4,9 +4,8 @@ import com.ant.msger.main.framework.handler.WebSocketPrefixHandler;
 import com.ant.msger.main.framework.handler.WebsocketServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
-import com.ant.msger.main.web.jt808.codec.JT808MessageTcpDecoder;
+import com.ant.msger.main.web.jt808.codec.JT808MessageWebsocketDecoder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -14,7 +13,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -64,7 +62,7 @@ public class WebsocketServer {
                         //用于大数据的分区传输
                         ch.pipeline().addLast(new ChunkedWriteHandler());
                         ch.pipeline().addLast(new WebSocketPrefixHandler());
-                        ch.pipeline().addLast(new JT808MessageTcpDecoder());
+                        ch.pipeline().addLast(new JT808MessageWebsocketDecoder(handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new WebsocketServerHandler(handlerMapper));
                     }
