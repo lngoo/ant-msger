@@ -4,10 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -21,14 +18,14 @@ import java.util.Date;
 
 import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 
-public class WebSocketPrefixHandler extends SimpleChannelInboundHandler<Object> {
+public class WebSocketPrefixHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger logger= Logger.getLogger(this.getClass());
 
     private WebSocketServerHandshaker handshaker;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpRequest){
             //以http请求形式接入，但是走的是websocket
             handleHttpRequest(ctx, (FullHttpRequest) msg);
@@ -58,9 +55,8 @@ public class WebSocketPrefixHandler extends SimpleChannelInboundHandler<Object> 
         }
 
         String request = ((TextWebSocketFrame) frame).text();
-        ByteBuf result = new EmptyByteBuf(ctx.alloc()); ;
-        result.writeBytes(request.getBytes());
-        ctx.write(result);
+//        ByteBuf resp = Unpooled.copiedBuffer(request.getBytes());
+        ctx.fireChannelRead(request);
     }
     /**
      * 唯一的一次http请求，用于创建websocket
