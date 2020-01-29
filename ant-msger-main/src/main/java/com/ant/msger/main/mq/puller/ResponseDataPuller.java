@@ -1,13 +1,15 @@
 package com.ant.msger.main.mq.puller;
 
 import com.ant.msger.base.common.MessageId;
-import com.ant.msger.base.dto.jt808.Authentication;
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
+import com.ant.msger.main.framework.commons.transform.HexUtil;
 import com.ant.msger.main.framework.handler.Protocol;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
+import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.thoughtworks.xstream.XStream;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -17,7 +19,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
+import java.util.Arrays;
 
 @Component
 public class ResponseDataPuller {
@@ -29,6 +31,7 @@ public class ResponseDataPuller {
     String redisKey;
 
     private XStream xstream = new XStream();
+    private JT808MessageEncoder jT808MessageEncoder = new JT808MessageEncoder();
 
     public void doJob() {
 
@@ -73,9 +76,8 @@ public class ResponseDataPuller {
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
                                 channel.disconnect();
                             } else if (Protocol.WEBSOCKET == session.getProtocol()) {
-                                // TODO websocket 返回数据给客户端
-//                                TextWebSocketFrame tws = new TextWebSocketFrame(message);
-//                                channel.writeAndFlush(tws).sync();
+                                TextWebSocketFrame tws = new TextWebSocketFrame(formatWebsocketMessage(message));
+                                channel.writeAndFlush(tws).sync();
                             } else {
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
                             }
@@ -87,5 +89,14 @@ public class ResponseDataPuller {
             }
         }).start();
 
+    }
+
+    private String formatWebsocketMessage(Message message){
+        ByteBuf byteBuf = jT808MessageEncoder.encode(message);
+        byte[] bytes = byteBuf.array();
+        int len = byteBuf.readableBytes();
+        byte[] real = Arrays.copyOfRange(bytes, 0, len);
+        String str = HexUtil.bytesToHexString(real);
+        return "7e".concat(str).concat("7e");
     }
 }
