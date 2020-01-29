@@ -7,6 +7,7 @@ import com.ant.msger.main.framework.commons.transform.HexUtil;
 import com.ant.msger.main.framework.handler.Protocol;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
+import com.ant.msger.main.web.jt808.codec.JT808MessageEncodeHelper;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.thoughtworks.xstream.XStream;
 import io.netty.buffer.ByteBuf;
@@ -31,7 +32,6 @@ public class ResponseDataPuller {
     String redisKey;
 
     private XStream xstream = new XStream();
-    private JT808MessageEncoder jT808MessageEncoder = new JT808MessageEncoder();
 
     public void doJob() {
 
@@ -76,7 +76,7 @@ public class ResponseDataPuller {
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
                                 channel.disconnect();
                             } else if (Protocol.WEBSOCKET == session.getProtocol()) {
-                                TextWebSocketFrame tws = new TextWebSocketFrame(formatWebsocketMessage(message));
+                                TextWebSocketFrame tws = new TextWebSocketFrame(JT808MessageEncodeHelper.formatWebsocketMessage(message));
                                 channel.writeAndFlush(tws).sync();
                             } else {
                                 ChannelFuture future = channel.writeAndFlush(message).sync();
@@ -89,14 +89,5 @@ public class ResponseDataPuller {
             }
         }).start();
 
-    }
-
-    private String formatWebsocketMessage(Message message){
-        ByteBuf byteBuf = jT808MessageEncoder.encode(message);
-        byte[] bytes = byteBuf.array();
-        int len = byteBuf.readableBytes();
-        byte[] real = Arrays.copyOfRange(bytes, 0, len);
-        String str = HexUtil.bytesToHexString(real);
-        return "7e".concat(str).concat("7e");
     }
 }

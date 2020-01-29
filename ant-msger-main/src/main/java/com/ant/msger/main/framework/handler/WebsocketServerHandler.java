@@ -1,12 +1,15 @@
 package com.ant.msger.main.framework.handler;
 
+import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
+import com.ant.msger.main.web.jt808.codec.JT808MessageEncodeHelper;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -37,7 +40,8 @@ public class WebsocketServerHandler extends BaseHandler {
             AbstractMessage messageResponse = consumerMessage(Protocol.WEBSOCKET, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
-                ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
+                TextWebSocketFrame tws = new TextWebSocketFrame(JT808MessageEncodeHelper.formatWebsocketMessage((Message) messageResponse));
+                channel.writeAndFlush(tws).sync();
             }
         } finally {
             ReferenceCountUtil.release(msg);
