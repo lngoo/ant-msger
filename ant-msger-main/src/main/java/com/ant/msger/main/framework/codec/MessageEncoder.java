@@ -24,9 +24,11 @@ public abstract class MessageEncoder<T extends AbstractBody> extends MessageToBy
     @Override
     protected void encode(ChannelHandlerContext ctx, AbstractMessage msg, ByteBuf out) {
         ByteBuf buf = encode(msg);
-        out.writeByte(0x7e);
+//        out.writeByte(0x7e);
+        out.writeByte(msg.getDelimiter());
         out.writeBytes(buf);
-        out.writeByte(0x7e);
+        out.writeByte(msg.getDelimiter());
+//        out.writeByte(0x7e);
     }
 
     public ByteBuf encode(AbstractMessage<T> message) {

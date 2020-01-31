@@ -116,9 +116,4 @@ public class HexUtil {
         }
         return result;
     }
-
-    public static void main(String[] args) {
-        System.out.println(hexString2Bytes("7e"));
-        System.out.println(111);
-    }
 }

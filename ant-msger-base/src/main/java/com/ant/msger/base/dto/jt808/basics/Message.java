@@ -7,6 +7,7 @@ import com.ant.msger.base.message.AbstractMessage;
 
 public class Message<T extends AbstractBody> extends AbstractMessage<T> {
 
+    protected Integer delimiter = 0x7e;
     protected Integer type;
     protected Integer bodyProperties;
     protected String mobileNumber;
@@ -40,6 +41,16 @@ public class Message<T extends AbstractBody> extends AbstractMessage<T> {
         this.serialNumber = serialNumber;
         this.mobileNumber = mobileNumber;
         this.body = body;
+    }
+
+    @Override
+    public Integer getDelimiter() {
+        return delimiter;
+    }
+
+    @Override
+    public void setDelimiter(Integer delimiter) {
+        this.delimiter = delimiter;
     }
 
     @Property(index = 0, type = DataType.WORD, desc = "消息ID")

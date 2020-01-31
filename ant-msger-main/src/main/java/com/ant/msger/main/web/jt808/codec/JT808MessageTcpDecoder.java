@@ -26,17 +26,13 @@ public class JT808MessageTcpDecoder extends ByteToMessageDecoder {
         this.handlerMapper = handlerMapper;
     }
 
-    @Override
+@Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> out) throws Exception {
-        int type = baseDecoder.getType(in);
-        Handler handler = handlerMapper.getHandler(type);
-
-        if (handler == null) {
+        // 将输入转换为bean
+        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(in, handlerMapper);
+        if (null == message) {
             return;
         }
-
-        // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = baseDecoder.decodeIn2Message(in, handler);
         out.add(message);
 
         in.skipBytes(in.readableBytes());

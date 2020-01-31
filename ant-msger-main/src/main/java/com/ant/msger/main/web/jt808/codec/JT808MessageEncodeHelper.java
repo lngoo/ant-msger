@@ -5,6 +5,9 @@ import com.ant.msger.main.framework.commons.transform.HexUtil;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class JT808MessageEncodeHelper {
     private static JT808MessageEncoder jT808MessageEncoder = new JT808MessageEncoder();
@@ -15,6 +18,7 @@ public class JT808MessageEncodeHelper {
         int len = byteBuf.readableBytes();
         byte[] real = Arrays.copyOfRange(bytes, 0, len);
         String str = HexUtil.bytesToHexString(real);
-        return "7e".concat(str).concat("7e");
+        String delimiter = HexUtil.intTohex(message.getDelimiter());
+        return delimiter.concat(str).concat(delimiter);
     }
 }

@@ -26,7 +26,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
     protected HandlerMapper handlerMapper;
 
     protected AbstractMessage consumerMessage(Protocol protocol, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
-        Handler handler = handlerMapper.getHandler(messageRequest.getType());
+        Handler handler = handlerMapper.getHandler(messageRequest.getDelimiter(), messageRequest.getType());
         Type[] types = handler.getTargetParameterTypes();
 
         AbstractMessage messageResponse;

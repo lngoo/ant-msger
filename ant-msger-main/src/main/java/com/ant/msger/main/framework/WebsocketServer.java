@@ -31,16 +31,14 @@ public class WebsocketServer {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private int port;
-    private byte delimiter;
 
     private HandlerMapper handlerMapper;
 
     public WebsocketServer() {
     }
 
-    public WebsocketServer(int port, byte delimiter, HandlerMapper handlerMapper) {
+    public WebsocketServer(int port, HandlerMapper handlerMapper) {
         this.port = port;
-        this.delimiter = delimiter;
         this.handlerMapper = handlerMapper;
     }
 

@@ -29,16 +29,14 @@ public class TCPServer {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private int port;
-    private byte delimiter;
 
     private HandlerMapper handlerMapper;
 
     public TCPServer() {
     }
 
-    public TCPServer(int port, byte delimiter, HandlerMapper handlerMapper) {
+    public TCPServer(int port, HandlerMapper handlerMapper) {
         this.port = port;
-        this.delimiter = delimiter;
         this.handlerMapper = handlerMapper;
     }
 
@@ -55,7 +53,7 @@ public class TCPServer {
                     public void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(30, 0, 0, TimeUnit.MINUTES));
                         // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
-                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
+//                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
                         ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new TCPServerHandler(handlerMapper));

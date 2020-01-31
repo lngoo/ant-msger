@@ -28,7 +28,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.udp.enable:true}")
     public UDPServer udpServer() {
-        UDPServer server = new UDPServer(udpPort, (byte) 0x7e, handlerMapper(), sessionMinutes);
+        UDPServer server = new UDPServer(udpPort, handlerMapper(), sessionMinutes);
         server.startServer();
         return server;
     }
@@ -36,7 +36,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.tcp.enable:false}")
     public TCPServer tcpServer() {
-        TCPServer server = new TCPServer(tcpPort, (byte) 0x7e, handlerMapper());
+        TCPServer server = new TCPServer(tcpPort, handlerMapper());
         server.startServer();
         return server;
     }
@@ -44,7 +44,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.websocket.enable:false}")
     public WebsocketServer websocketServer() {
-        WebsocketServer server = new WebsocketServer(websocketPort, (byte) 0x7e, handlerMapper());
+        WebsocketServer server = new WebsocketServer(websocketPort, handlerMapper());
         server.startServer();
         return server;
     }

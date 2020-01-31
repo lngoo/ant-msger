@@ -4,6 +4,15 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public abstract class AbstractMessage<T extends AbstractBody> {
+    /**
+     * 标识符
+     */
+    public abstract Integer getDelimiter();
+
+    /**
+     * 标识符
+     */
+    public abstract void setDelimiter(Integer delimiter);
 
     /**
      * 消息类型

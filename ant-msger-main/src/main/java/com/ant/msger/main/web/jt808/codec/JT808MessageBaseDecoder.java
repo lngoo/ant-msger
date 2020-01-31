@@ -6,13 +6,16 @@ import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.PropertyUtils;
 import com.ant.msger.main.framework.commons.bean.BeanUtils;
+import com.ant.msger.main.framework.commons.constant.GlobalConstant;
 import com.ant.msger.main.framework.commons.transform.Bcd;
 import com.ant.msger.main.framework.commons.transform.ByteBufUtils;
 import com.ant.msger.main.framework.mapping.Handler;
+import com.ant.msger.main.framework.mapping.HandlerMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.swagger.models.auth.In;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
@@ -21,11 +24,53 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.ant.msger.base.enums.DataType.*;
 
 public class JT808MessageBaseDecoder {
+
+    protected AbstractMessage<? extends AbstractBody> hexStringToBean(ByteBuf in, HandlerMapper handlerMapper){
+        // 获取标识符
+        Integer delimiter = getOriInfoDelimiter(in);
+        if (null == delimiter) {
+            return null;
+        }
+
+        // 不是标准标识符，不解析报文
+        if (!Arrays.asList(GlobalConstant.delimiters).contains(delimiter)) {
+            return null;
+        }
+
+        // 去掉首尾的标识，如果没有标识，则认为消息不对，直接不处理了
+        in = in.slice(1, in.readableBytes() - 2);
+        if (in == null) {
+            return null;
+        }
+
+        int type = getType(in);
+        Handler handler = handlerMapper.getHandler(delimiter, type);
+
+        if (handler == null) {
+            return null;
+        }
+
+        // 将输入转换为bean
+        AbstractMessage<? extends AbstractBody> message = decodeIn2Message(in, handler);
+        message.setDelimiter(delimiter);
+        return message;
+    }
+
+    private Integer getOriInfoDelimiter(ByteBuf in) {
+        byte[] fristByte = ByteBufUtil.getBytes(in, 0, 1);
+        byte[] endByte = ByteBufUtil.getBytes(in, in.readableBytes() - 1, 1);
+        if (fristByte[0] == endByte[0]) {
+            return Integer.valueOf(fristByte[0]);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 获取消息ID
@@ -36,22 +81,22 @@ public class JT808MessageBaseDecoder {
         return source.getUnsignedShort(0);
     }
 
-    /**
-     * 去掉首尾的7e标识，如果没有标识，则认为消息不对，直接不处理了
-     * @param in
-     * @return
-     */
-    public ByteBuf checkAndRemove7E(ByteBuf in) {
-        int stand = Integer.parseInt("7E", 16);
-        byte[] fristByte = ByteBufUtil.getBytes(in, 0, 1);
-        byte[] endByte = ByteBufUtil.getBytes(in, in.readableBytes() - 1, 1);
-        if (stand == fristByte[0]
-                && stand == endByte[0]) {
-            return in.slice(1, in.readableBytes() - 2);
-        } else {
-            return null;
-        }
-    }
+//    /**
+//     * 去掉首尾的7e标识，如果没有标识，则认为消息不对，直接不处理了
+//     * @param in
+//     * @return
+//     */
+//    public ByteBuf checkAndRemove7E(ByteBuf in) {
+//        int stand = Integer.parseInt("7E", 16);
+//        byte[] fristByte = ByteBufUtil.getBytes(in, 0, 1);
+//        byte[] endByte = ByteBufUtil.getBytes(in, in.readableBytes() - 1, 1);
+//        if (stand == fristByte[0]
+//                && stand == endByte[0]) {
+//            return in.slice(1, in.readableBytes() - 2);
+//        } else {
+//            return null;
+//        }
+//    }
 
     /**
      * 将正文转换成消息体bean

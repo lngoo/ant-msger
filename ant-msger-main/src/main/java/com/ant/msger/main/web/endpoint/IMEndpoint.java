@@ -26,12 +26,12 @@ import static com.ant.msger.base.common.MessageId.*;
 
 @Endpoint
 @Component
-public class JT808Endpoint extends BaseEndpoint {
+public class IMEndpoint extends BaseEndpoint {
 
     @Autowired
     RequestDataJT808Sender jt808Sender;
 
-    private static final Logger logger = LoggerFactory.getLogger(JT808Endpoint.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(IMEndpoint.class.getSimpleName());
 
     private SessionManager sessionManager = SessionManager.getInstance();
 
@@ -39,7 +39,7 @@ public class JT808Endpoint extends BaseEndpoint {
 
     @Override
     public Integer getPointType() {
-        return DELIMITER_JT808;
+        return DELIMITER_IM;
     }
 
     //TODO Test
@@ -163,6 +163,8 @@ public class JT808Endpoint extends BaseEndpoint {
 //        if (session == null) {
 //            session = initSession(message, socketAddress);
 //        }
+
+        System.out.println("%%%%%%%%%%%% IM &&&&&&&&&&&&&&");
         session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
 

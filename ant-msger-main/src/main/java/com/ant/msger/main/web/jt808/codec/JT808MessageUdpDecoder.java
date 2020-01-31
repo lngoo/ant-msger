@@ -38,21 +38,12 @@ public class JT808MessageUdpDecoder extends DatagramPacketDecoder {
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         ByteBuf in = msg.content();
 
-        // 去掉首尾的7e标识，如果没有标识，则认为消息不对，直接不处理了
-        in = baseDecoder.checkAndRemove7E(in);
-        if (in == null) {
-            return;
-        }
-
-        int type = baseDecoder.getType(in);
-        Handler handler = handlerMapper.getHandler(type);
-
-        if (handler == null) {
-            return;
-        }
-
         // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = baseDecoder.decodeIn2Message(in, handler);
+        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(in, handlerMapper);
+        if (null == message) {
+            return;
+        }
+
         DecodeResult decodeResult = new DecodeResult(message, msg);
         out.add(decodeResult);
 
