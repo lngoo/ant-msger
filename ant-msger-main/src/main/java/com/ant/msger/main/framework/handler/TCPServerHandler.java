@@ -19,13 +19,15 @@ import java.net.InetSocketAddress;
 
 public class TCPServerHandler extends BaseHandler {
 
-    public TCPServerHandler(HandlerMapper handlerMapper) {
+    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = new Logger();
     }
 
-    public TCPServerHandler(HandlerMapper handlerMapper, Logger logger) {
+    public TCPServerHandler(HandlerMapper handlerMapper, int sessionMinutes, Logger logger) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = logger;
     }
 

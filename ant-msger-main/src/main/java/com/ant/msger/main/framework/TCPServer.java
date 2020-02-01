@@ -29,15 +29,17 @@ public class TCPServer {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private int port;
+    private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
 
     public TCPServer() {
     }
 
-    public TCPServer(int port, HandlerMapper handlerMapper) {
+    public TCPServer(int port, HandlerMapper handlerMapper, int sessionMinutes) {
         this.port = port;
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
     }
 
     private void bind() throws Exception {
@@ -56,7 +58,7 @@ public class TCPServer {
 //                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
                         ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
-                        ch.pipeline().addLast(new TCPServerHandler(handlerMapper));
+                        ch.pipeline().addLast(new TCPServerHandler(handlerMapper, sessionMinutes));
                     }
                 });
 

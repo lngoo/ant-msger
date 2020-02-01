@@ -36,7 +36,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.tcp.enable:false}")
     public TCPServer tcpServer() {
-        TCPServer server = new TCPServer(tcpPort, handlerMapper());
+        TCPServer server = new TCPServer(tcpPort, handlerMapper(), sessionMinutes);
         server.startServer();
         return server;
     }
@@ -44,7 +44,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.websocket.enable:false}")
     public WebsocketServer websocketServer() {
-        WebsocketServer server = new WebsocketServer(websocketPort, handlerMapper());
+        WebsocketServer server = new WebsocketServer(websocketPort, handlerMapper(), sessionMinutes);
         server.startServer();
         return server;
     }

@@ -31,15 +31,17 @@ public class WebsocketServer {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private int port;
+    private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
 
     public WebsocketServer() {
     }
 
-    public WebsocketServer(int port, HandlerMapper handlerMapper) {
+    public WebsocketServer(int port, HandlerMapper handlerMapper, int sessionMinutes) {
         this.port = port;
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
     }
 
     private void bind() throws Exception {
@@ -62,7 +64,7 @@ public class WebsocketServer {
                         ch.pipeline().addLast(new WebSocketPrefixHandler());
                         ch.pipeline().addLast(new JT808MessageWebsocketDecoder(handlerMapper));
                         ch.pipeline().addLast(new JT808MessageEncoder());
-                        ch.pipeline().addLast(new WebsocketServerHandler(handlerMapper));
+                        ch.pipeline().addLast(new WebsocketServerHandler(handlerMapper, sessionMinutes));
                     }
                 });
 

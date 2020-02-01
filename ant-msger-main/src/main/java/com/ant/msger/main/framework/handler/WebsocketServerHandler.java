@@ -18,13 +18,15 @@ import java.net.InetSocketAddress;
 
 public class WebsocketServerHandler extends BaseHandler {
 
-    public WebsocketServerHandler(HandlerMapper handlerMapper) {
+    public WebsocketServerHandler(HandlerMapper handlerMapper, int sessionMinutes) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = new Logger();
     }
 
-    public WebsocketServerHandler(HandlerMapper handlerMapper, Logger logger) {
+    public WebsocketServerHandler(HandlerMapper handlerMapper, int sessionMinutes, Logger logger) {
         this.handlerMapper = handlerMapper;
+        this.sessionMinutes = sessionMinutes;
         this.logger = logger;
     }
 

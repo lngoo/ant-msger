@@ -39,21 +39,18 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
             }
             messageResponse = handler.invoke(messageRequest, session);
         } else {
-            // UDP特殊处理，加入session时长
-            if (protocol == Protocol.UDP) {
-                session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
-                // session是否过期了，过期了直接返回失败
-                if (null == session
-                        || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60 * sessionMinutes) {
-                    // 通用失败应答
-                    CommonResult result = new CommonResult(messageRequest.getType(), ((Message)messageRequest).getSerialNumber(), CommonResult.Fial);
-                    // 连接已丢失，未重连前，返回的序列号全为1
-                    messageResponse = new Message(平台通用应答, 1, ((Message)messageRequest).getMobileNumber(), result);
-                }
+            session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
+            // session是否过期了，过期了直接返回失败
+            if (null == session
+                    || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60 * sessionMinutes) {
+                // 通用失败应答
+                CommonResult result = new CommonResult(messageRequest.getType(), ((Message)messageRequest).getSerialNumber(), CommonResult.Fial);
+                // 连接已丢失，未重连前，返回的序列号全为1
+                messageResponse = new Message(平台通用应答, 1, ((Message)messageRequest).getMobileNumber(), result);
+            } else {
+                session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+                messageResponse = handler.invoke(messageRequest, session);
             }
-
-            session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-            messageResponse = handler.invoke(messageRequest, session);
         }
         return messageResponse;
     }

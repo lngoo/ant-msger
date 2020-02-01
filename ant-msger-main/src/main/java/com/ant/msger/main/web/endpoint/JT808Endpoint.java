@@ -202,6 +202,7 @@ public class JT808Endpoint extends BaseEndpoint {
 //        }
         session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
+        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
 
         // 发送到redis
         jt808Sender.send(message);
