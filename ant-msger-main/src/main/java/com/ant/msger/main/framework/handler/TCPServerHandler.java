@@ -1,5 +1,6 @@
 package com.ant.msger.main.framework.handler;
 
+import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.framework.mapping.Handler;
@@ -43,7 +44,7 @@ public class TCPServerHandler extends BaseHandler {
             AbstractMessage messageResponse = consumerMessage(Protocol.TCP, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
-                ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
+                protocolMsgSender.sendTcpMsgSingle(session, (Message) messageResponse);
             }
         } finally {
             ReferenceCountUtil.release(msg);

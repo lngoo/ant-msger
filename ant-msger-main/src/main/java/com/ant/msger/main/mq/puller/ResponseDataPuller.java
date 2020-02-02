@@ -3,24 +3,17 @@ package com.ant.msger.main.mq.puller;
 import com.ant.msger.base.common.MessageId;
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
-import com.ant.msger.main.framework.commons.transform.HexUtil;
+import com.ant.msger.base.message.AntSendChannelMsg;
 import com.ant.msger.main.framework.handler.Protocol;
+import com.ant.msger.main.framework.sender.ProtocolMsgSender;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
-import com.ant.msger.main.web.jt808.codec.JT808MessageEncodeHelper;
-import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.thoughtworks.xstream.XStream;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import java.util.Arrays;
 
 @Component
 public class ResponseDataPuller {
@@ -32,6 +25,7 @@ public class ResponseDataPuller {
     String redisKey;
 
     private XStream xstream = new XStream();
+    private ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
 
     public void doJob() {
 
@@ -54,40 +48,45 @@ public class ResponseDataPuller {
                         }
                         System.out.println("### no response data. sleep 3 seconds." + System.currentTimeMillis());
                     } else {
-                        try {
-                            System.out.println("### got one data." + System.currentTimeMillis());
-                            Message message = (Message) xstream.fromXML(data);
+                        System.out.println("### got one data." + System.currentTimeMillis());
+                        AntSendChannelMsg antSendChannelMsg = (AntSendChannelMsg) xstream.fromXML(data);
+                        switch (antSendChannelMsg.getTopicType()) {
+                            case TO_DEVICE:
+                                sendMsgToDevice(antSendChannelMsg.getMessage());
+                                break;
+                                // todo 还没处理IM消息
+                            case TO_USER:
+                                break;
+                            case TO_DIALOG:
 
-                            if (message.getBody() instanceof CommonResult) {
-                                CommonResult commonResult = (CommonResult) message.getBody();
-                                if (commonResult.getReplyId() == MessageId.终端鉴权
-                                    && commonResult.getResultCode() == CommonResult.Success) {
-                                    // TODO 终端session已授权
-                                }
-                            }
-
-                            Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
-                            message.setSerialNumber(session.currentFlowId());
-
-                            // 发送消息
-                            Channel channel = session.getChannel();
-                            if (Protocol.UDP == session.getProtocol()) {
-                                channel.connect(session.getSocketAddress());
-                                ChannelFuture future = channel.writeAndFlush(message).sync();
-                                channel.disconnect();
-                            } else if (Protocol.WEBSOCKET == session.getProtocol()) {
-                                TextWebSocketFrame tws = new TextWebSocketFrame(JT808MessageEncodeHelper.formatWebsocketMessage(message));
-                                channel.writeAndFlush(tws).sync();
-                            } else {
-                                ChannelFuture future = channel.writeAndFlush(message).sync();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
                 }
             }
         }).start();
 
+    }
+
+    private void sendMsgToDevice(Message message) {
+        Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
+        if (message.getBody() instanceof CommonResult) {
+            CommonResult commonResult = (CommonResult) message.getBody();
+            if (commonResult.getReplyId() == MessageId.终端鉴权
+                    && commonResult.getResultCode() == CommonResult.Success) {
+                // 终端session鉴权成功，更新下链接时间
+                session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+            }
+        }
+
+        message.setSerialNumber(session.currentFlowId());
+
+        // 发送消息
+        if (Protocol.UDP == session.getProtocol()) {
+            protocolMsgSender.sendUdpMsgSingle(session, message);
+        } else if (Protocol.WEBSOCKET == session.getProtocol()) {
+            protocolMsgSender.sendWebsocketMsgSingle(session, message);
+        } else {
+            protocolMsgSender.sendTcpMsgSingle(session, message);
+        }
     }
 }

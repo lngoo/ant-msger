@@ -6,6 +6,7 @@ import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.sender.ProtocolMsgSender;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
 import com.ant.msger.main.web.config.SessionKey;
@@ -24,6 +25,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
     protected Integer sessionMinutes;
 
     protected HandlerMapper handlerMapper;
+    protected ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
 
     protected AbstractMessage consumerMessage(Protocol protocol, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
         Handler handler = handlerMapper.getHandler(messageRequest.getDelimiter(), messageRequest.getType());

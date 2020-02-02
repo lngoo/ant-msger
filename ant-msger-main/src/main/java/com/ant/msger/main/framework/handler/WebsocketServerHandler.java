@@ -42,8 +42,7 @@ public class WebsocketServerHandler extends BaseHandler {
             AbstractMessage messageResponse = consumerMessage(Protocol.WEBSOCKET, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
-                TextWebSocketFrame tws = new TextWebSocketFrame(JT808MessageEncodeHelper.formatWebsocketMessage((Message) messageResponse));
-                channel.writeAndFlush(tws).sync();
+                protocolMsgSender.sendWebsocketMsgSingle(session, (Message) messageResponse);
             }
         } finally {
             ReferenceCountUtil.release(msg);

@@ -40,10 +40,7 @@ public class UDPServerHandler extends BaseHandler {
             AbstractMessage messageResponse = consumerMessage(Protocol.UDP, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
-                Channel channel = ctx.channel();
-                channel.connect(((DecodeResult) msg).getDatagramPacket().sender());
-                ChannelFuture future = channel.writeAndFlush(messageResponse).sync();
-                channel.disconnect();
+                protocolMsgSender.sendUdpMsgSingle(session, (Message) messageResponse);
             }
         } finally {
             ReferenceCountUtil.release(msg);
