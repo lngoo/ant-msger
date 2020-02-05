@@ -2,12 +2,12 @@ package com.ant.msger.base.session;
 
 import java.util.Date;
 
-public class DialogUser extends SessionObject{
+public class TopicUser extends SessionObject{
     private String dialogId;
     private String userId;
     private Date expireTime;
 
-    public DialogUser(String dialogId, String userId, Date expireTime) {
+    public TopicUser(String dialogId, String userId, Date expireTime) {
         this.dialogId = dialogId;
         this.userId = userId;
         this.expireTime = expireTime;

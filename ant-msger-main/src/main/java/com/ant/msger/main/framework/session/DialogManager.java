@@ -1,7 +1,6 @@
 package com.ant.msger.main.framework.session;
 
-import com.ant.msger.base.session.DialogUser;
-import com.ant.msger.base.session.UserDevice;
+import com.ant.msger.base.session.TopicUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +9,13 @@ import java.util.Map;
  * 会话用户缓存
  */
 public class DialogManager {
-    private Map<String, Map<String, DialogUser>> map = new HashMap<>();
+    private Map<String, Map<String, TopicUser>> map = new HashMap<>();
 
-    public Map<String, Map<String, DialogUser>> getMap() {
+    public Map<String, Map<String, TopicUser>> getMap() {
         return map;
     }
 
-    public void setMap(Map<String, Map<String, DialogUser>> map) {
+    public void setMap(Map<String, Map<String, TopicUser>> map) {
         this.map = map;
     }
 }

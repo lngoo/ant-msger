@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ant.msger.base.enums.NotifyType;
 import com.ant.msger.base.enums.SubjectType;
-import com.ant.msger.base.session.DialogUser;
+import com.ant.msger.base.session.TopicUser;
 import com.ant.msger.base.session.UserDevice;
 import com.ant.msger.main.mq.ThreadPool;
 import com.ant.msger.main.mq.callable.DialogUserUpdator;
@@ -46,18 +46,23 @@ public class ResponseDataPuller {
                         System.out.println("###[response] no response data. sleep 3 seconds." + System.currentTimeMillis());
                     } else {
                         System.out.println("###[response] got one data." + System.currentTimeMillis());
-                        JSONObject jsonObject = JSON.parseObject(data);
-                        NotifyType notifyType = Enum.valueOf(NotifyType.class, (String) jsonObject.get("notifyType"));
-                        SubjectType subjectType = Enum.valueOf(SubjectType.class, (String) jsonObject.get("subjectType"));
-                        switch (subjectType) {
-                            case USER_DEVICE:
-                                UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
-                                ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice));
-                                break;
-                            case DIALOG_USER:
-                                DialogUser dialogUser = jsonObject.getJSONObject("object").toJavaObject(DialogUser.class);
-                                ThreadPool.submit(new DialogUserUpdator(notifyType, dialogUser));
-                                break;
+                        try {
+                            JSONObject jsonObject = JSON.parseObject(data);
+                            NotifyType notifyType = Enum.valueOf(NotifyType.class, (String) jsonObject.get("notifyType"));
+                            SubjectType subjectType = Enum.valueOf(SubjectType.class, (String) jsonObject.get("subjectType"));
+                            switch (subjectType) {
+                                case USER_DEVICE:
+                                    UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
+                                    ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice));
+                                    break;
+                                case DIALOG_USER:
+                                    TopicUser topicUser = jsonObject.getJSONObject("object").toJavaObject(TopicUser.class);
+                                    ThreadPool.submit(new DialogUserUpdator(notifyType, topicUser));
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("###%%%[response] Exception Happened.");
+                            e.printStackTrace();
                         }
                     }
                 }
