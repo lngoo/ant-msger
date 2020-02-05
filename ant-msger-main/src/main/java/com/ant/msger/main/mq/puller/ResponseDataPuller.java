@@ -1,14 +1,14 @@
 package com.ant.msger.main.mq.puller;
 
-import com.ant.msger.base.common.MessageId;
-import com.ant.msger.base.dto.jt808.CommonResult;
-import com.ant.msger.base.dto.jt808.basics.Message;
-import com.ant.msger.base.message.AntSendChannelMsg;
-import com.ant.msger.main.framework.handler.Protocol;
-import com.ant.msger.main.framework.sender.ProtocolMsgSender;
-import com.ant.msger.main.framework.session.Session;
-import com.ant.msger.main.framework.session.SessionManager;
-import com.thoughtworks.xstream.XStream;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.ant.msger.base.enums.NotifyType;
+import com.ant.msger.base.enums.SubjectType;
+import com.ant.msger.base.session.DialogUser;
+import com.ant.msger.base.session.UserDevice;
+import com.ant.msger.main.mq.ThreadPool;
+import com.ant.msger.main.mq.callable.DialogUserUpdator;
+import com.ant.msger.main.mq.callable.UserDeviceUpdator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,13 +24,10 @@ public class ResponseDataPuller {
     @Value("${redis.key.queue.response}")
     String redisKey;
 
-    private XStream xstream = new XStream();
-    private ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
-
     public void doJob() {
 
         if (StringUtils.isEmpty(redisKey)) {
-            System.out.println("### no response redis key config. stop all...");
+            System.out.println("###[response] no response redis key config. stop all...");
             return;
         }
 
@@ -46,47 +43,25 @@ public class ResponseDataPuller {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        System.out.println("### no response data. sleep 3 seconds." + System.currentTimeMillis());
+                        System.out.println("###[response] no response data. sleep 3 seconds." + System.currentTimeMillis());
                     } else {
-                        System.out.println("### got one data." + System.currentTimeMillis());
-                        AntSendChannelMsg antSendChannelMsg = (AntSendChannelMsg) xstream.fromXML(data);
-                        switch (antSendChannelMsg.getTopicType()) {
-                            case TO_DEVICE:
-                                sendMsgToDevice(antSendChannelMsg.getMessage());
+                        System.out.println("###[response] got one data." + System.currentTimeMillis());
+                        JSONObject jsonObject = JSON.parseObject(data);
+                        NotifyType notifyType = Enum.valueOf(NotifyType.class, (String) jsonObject.get("notifyType"));
+                        SubjectType subjectType = Enum.valueOf(SubjectType.class, (String) jsonObject.get("subjectType"));
+                        switch (subjectType) {
+                            case USER_DEVICE:
+                                UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
+                                ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice));
                                 break;
-                                // todo 还没处理IM消息
-                            case TO_USER:
+                            case DIALOG_USER:
+                                DialogUser dialogUser = jsonObject.getJSONObject("object").toJavaObject(DialogUser.class);
+                                ThreadPool.submit(new DialogUserUpdator(notifyType, dialogUser));
                                 break;
-                            case TO_DIALOG:
-
                         }
                     }
                 }
             }
         }).start();
-
-    }
-
-    private void sendMsgToDevice(Message message) {
-        Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
-        if (message.getBody() instanceof CommonResult) {
-            CommonResult commonResult = (CommonResult) message.getBody();
-            if (commonResult.getReplyId() == MessageId.终端鉴权
-                    && commonResult.getResultCode() == CommonResult.Success) {
-                // 终端session鉴权成功，更新下链接时间
-                session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-            }
-        }
-
-        message.setSerialNumber(session.currentFlowId());
-
-        // 发送消息
-        if (Protocol.UDP == session.getProtocol()) {
-            protocolMsgSender.sendUdpMsgSingle(session, message);
-        } else if (Protocol.WEBSOCKET == session.getProtocol()) {
-            protocolMsgSender.sendWebsocketMsgSingle(session, message);
-        } else {
-            protocolMsgSender.sendTcpMsgSingle(session, message);
-        }
     }
 }
