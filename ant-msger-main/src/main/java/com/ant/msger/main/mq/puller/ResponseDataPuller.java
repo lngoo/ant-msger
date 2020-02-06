@@ -9,6 +9,8 @@ import com.ant.msger.base.session.UserDevice;
 import com.ant.msger.main.mq.ThreadPool;
 import com.ant.msger.main.mq.callable.DialogUserUpdator;
 import com.ant.msger.main.mq.callable.UserDeviceUpdator;
+import com.ant.msger.main.persistence.dao.UserDeviceMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,8 +26,11 @@ public class ResponseDataPuller {
     @Value("${redis.key.queue.response}")
     String redisKey;
 
-    public void doJob() {
+    @Autowired
+    UserDeviceMapper userDeviceMapper;
 
+    public void doJob() {
+        UserDevice userDevice = new UserDevice("1","1",null);
         if (StringUtils.isEmpty(redisKey)) {
             System.out.println("###[response] no response redis key config. stop all...");
             return;
@@ -53,7 +58,7 @@ public class ResponseDataPuller {
                             switch (subjectType) {
                                 case USER_DEVICE:
                                     UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
-                                    ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice));
+                                    ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice, userDeviceMapper));
                                     break;
                                 case DIALOG_USER:
                                     TopicUser topicUser = jsonObject.getJSONObject("object").toJavaObject(TopicUser.class);

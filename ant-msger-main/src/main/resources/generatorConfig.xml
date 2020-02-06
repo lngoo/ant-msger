@@ -1,30 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
-
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
-    <context id="MyBatis3NoClient" targetRuntime="MyBatis3" defaultModelType="flat">
-
-        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin"/>
+    <!-- 数据库驱动:选择你的本地硬盘上面的数据库驱动包-->
+    <classPathEntry location="D:\repo\mysql\mysql-connector-java\5.1.47\mysql-connector-java-5.1.47.jar"/>
+    <context id="DB2Tables" targetRuntime="MyBatis3">
 
         <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
             <property name="suppressAllComments" value="true"/>
-            <property name="suppressDate" value="false"/>
         </commentGenerator>
 
-        <jdbcConnection driverClass="org.h2.Driver" connectionURL="jdbc:h2:mem:test" userId="root" password="abc@123"/>
+        <!--数据库链接URL，用户名、密码 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://49.232.172.2:3306/msger?useSSL=false"
+                        userId="root"
+                        password="123456">
+        </jdbcConnection>
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="true"/>
+        </javaTypeResolver>
 
-        <javaModelGenerator targetPackage="org.yzh.web.model.entity" targetProject="src\main\java">
+        <!-- 生成模型的包名和位置-->
+        <javaModelGenerator targetPackage="com.ant.msger.main.persistence.entity" targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\java">
             <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
-        <sqlMapGenerator targetPackage="mapper" targetProject="src\main\resources">
+        <!-- 生成映射文件的包名和位置-->
+        <sqlMapGenerator targetPackage="mapper" targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
-        <javaClientGenerator targetPackage="org.yzh.web.mapper" targetProject="src\main\resources" type="XMLMAPPER">
+        <!-- 生成DAO的包名和位置-->
+        <!-- XMLMAPPER生成xml映射文件, ANNOTATEDMAPPER生成的dao采用注解来写sql -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.ant.msger.main.persistence.dao"
+                             targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="xxx" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false"/>
+        <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
+        <table tableName="user_device" domainObjectName="UserDevice" enableCountByExample="false"
+               enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false"></table>
     </context>
 </generatorConfiguration>

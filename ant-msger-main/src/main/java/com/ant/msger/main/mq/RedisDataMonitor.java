@@ -1,5 +1,6 @@
 package com.ant.msger.main.mq;
 
+import com.ant.msger.main.mq.puller.ResponseDataPuller;
 import com.ant.msger.main.mq.puller.SendDataPuller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,9 @@ public class RedisDataMonitor implements ApplicationRunner {
     @Autowired
     SendDataPuller sendDataPuller;
 
+    @Autowired
+    ResponseDataPuller responseDataPuller;
+
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
         if (threadNumbs < 4) {
@@ -25,6 +29,7 @@ public class RedisDataMonitor implements ApplicationRunner {
 
         // 监听发送队列
         sendDataPuller.doJob();
+        responseDataPuller.doJob();
 
     }
 }

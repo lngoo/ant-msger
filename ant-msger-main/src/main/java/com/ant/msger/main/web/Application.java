@@ -1,5 +1,6 @@
 package com.ant.msger.main.web;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -10,6 +11,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableWebSocket
 @SpringBootApplication
 @ComponentScan({"com.ant.msger"})
+@MapperScan("com.ant.msger.main.persistence.dao")
 public class Application {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
