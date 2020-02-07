@@ -4,12 +4,13 @@ import com.ant.msger.base.session.TopicUser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 会话用户缓存
  */
-public class DialogManager {
-    private Map<String, Map<String, TopicUser>> map = new HashMap<>();
+public class TopicManager {
+    private Map<String, Map<String, TopicUser>> map = new ConcurrentHashMap<>();
 
     public Map<String, Map<String, TopicUser>> getMap() {
         return map;

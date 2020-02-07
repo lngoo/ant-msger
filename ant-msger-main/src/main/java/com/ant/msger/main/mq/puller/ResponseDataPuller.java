@@ -10,6 +10,8 @@ import com.ant.msger.main.mq.ThreadPool;
 import com.ant.msger.main.mq.callable.DialogUserUpdator;
 import com.ant.msger.main.mq.callable.UserDeviceUpdator;
 import com.ant.msger.main.persistence.dao.UserDeviceMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +19,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Component
 public class ResponseDataPuller {
+    private static final Logger LOG = LoggerFactory.getLogger("responseChannel");
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
@@ -40,36 +45,46 @@ public class ResponseDataPuller {
             @Override
             public void run() {
                 while (true) {
-                    String data = stringRedisTemplate.opsForList().rightPop(redisKey);
-                    if (null == data) {
-                        // Sleep 3秒
-                        try {
-                            Thread.sleep(3000);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        System.out.println("###[response] no response data. sleep 3 seconds." + System.currentTimeMillis());
-                    } else {
-                        System.out.println("###[response] got one data." + System.currentTimeMillis());
-                        try {
-                            JSONObject jsonObject = JSON.parseObject(data);
-                            NotifyType notifyType = Enum.valueOf(NotifyType.class, (String) jsonObject.get("notifyType"));
-                            SubjectType subjectType = Enum.valueOf(SubjectType.class, (String) jsonObject.get("subjectType"));
-                            switch (subjectType) {
-                                case USER_DEVICE:
-                                    UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
-                                    ThreadPool.submit(new UserDeviceUpdator(notifyType, userDevice, userDeviceMapper));
-                                    break;
-                                case DIALOG_USER:
-                                    TopicUser topicUser = jsonObject.getJSONObject("object").toJavaObject(TopicUser.class);
-                                    ThreadPool.submit(new DialogUserUpdator(notifyType, topicUser));
-                                    break;
-                            }
-                        } catch (Exception e) {
-                            System.out.println("###%%%[response] Exception Happened.");
-                            e.printStackTrace();
-                        }
+                    LOG.info("555555555555555");
+                    ThreadPool.submit(new UserDeviceUpdator(NotifyType.ADD, null, userDeviceMapper));
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+//                    String data = stringRedisTemplate.opsForList().rightPop(redisKey);
+//                    if (null == data) {
+//                        // Sleep 3秒
+//                        try {
+//                            Thread.sleep(3000);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        LOG.info("###[response] no response data. sleep 3 seconds." + System.currentTimeMillis());
+//                    } else {
+//                        LOG.info("###[response] got one data." + System.currentTimeMillis());
+//                        try {
+//                            JSONObject jsonObject = JSON.parseObject(data);
+//                            NotifyType notifyType = Enum.valueOf(NotifyType.class, (String) jsonObject.get("notifyType"));
+//                            SubjectType subjectType = Enum.valueOf(SubjectType.class, (String) jsonObject.get("subjectType"));
+//                            switch (subjectType) {
+//                                case USER_DEVICE:
+////                                    UserDevice userDevice = jsonObject.getJSONObject("object").toJavaObject(UserDevice.class);
+//                                    List<UserDevice> listUserDevices = jsonObject.getJSONArray("objects").toJavaList(UserDevice.class);
+//                                    ThreadPool.submit(new UserDeviceUpdator(notifyType, listUserDevices, userDeviceMapper));
+//                                    break;
+//                                case DIALOG_USER:
+////                                    TopicUser topicUser = jsonObject.getJSONObject("object").toJavaObject(TopicUser.class);
+//                                    List<TopicUser> listTopicUsers = jsonObject.getJSONArray("objects").toJavaList(TopicUser.class);
+//                                    // TODO
+////                                    ThreadPool.submit(new DialogUserUpdator(notifyType, listTopicUsers, ));
+//                                    break;
+//                            }
+//                        } catch (Exception e) {
+//                            LOG.warn("###%%%[response] Exception Happened.");
+//                            e.printStackTrace();
+//                        }
+//                    }
                 }
             }
         }).start();
