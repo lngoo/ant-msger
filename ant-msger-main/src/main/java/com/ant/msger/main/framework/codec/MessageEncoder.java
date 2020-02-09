@@ -38,7 +38,7 @@ public abstract class MessageEncoder<T extends AbstractBody> extends MessageToBy
 
         message.setBodyLength(bodyBuf.readableBytes());
 
-        ByteBuf headerBuf = encode(Unpooled.buffer(16), message);
+        ByteBuf headerBuf = encode(Unpooled.buffer(21), message);
 
         ByteBuf buf = Unpooled.wrappedBuffer(headerBuf, bodyBuf);
 

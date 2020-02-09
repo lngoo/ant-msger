@@ -31,7 +31,7 @@ import static com.ant.msger.base.enums.DataType.*;
 
 public class JT808MessageBaseDecoder {
 
-    protected AbstractMessage<? extends AbstractBody> hexStringToBean(ByteBuf in, HandlerMapper handlerMapper){
+    public AbstractMessage<? extends AbstractBody> hexStringToBean(ByteBuf in, HandlerMapper handlerMapper){
         // 获取标识符
         Integer delimiter = getOriInfoDelimiter(in);
         if (null == delimiter) {

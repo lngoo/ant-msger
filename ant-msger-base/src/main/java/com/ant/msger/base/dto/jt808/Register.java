@@ -38,7 +38,7 @@ public class Register extends AbstractBody {
     }
 
     /** 终端制造商编码 */
-    @Property(index = 4, type = DataType.STRING, length = 5, pad = 32, desc = "制造商ID")
+    @Property(index = 4, type = DataType.STRING, length = 11, pad = 32, desc = "制造商ID")
     public String getManufacturerId() {
         return manufacturerId;
     }
@@ -48,7 +48,7 @@ public class Register extends AbstractBody {
     }
 
     /** 由制造商自行定义,位数不足八位补空格 */
-    @Property(index = 9, type = DataType.STRING, length = 20, pad = 32, desc = "终端型号")
+    @Property(index = 15, type = DataType.STRING, length = 30, pad = 32, desc = "终端型号")
     public String getTerminalType() {
         return terminalType;
     }
@@ -58,7 +58,7 @@ public class Register extends AbstractBody {
     }
 
     /** 由大写字母和数字组成,此终端ID由制造商自行定义 */
-    @Property(index = 29, type = DataType.STRING, length = 7, desc = "终端ID")
+    @Property(index = 45, type = DataType.STRING, length = 30, desc = "终端ID")
     public String getTerminalId() {
         return terminalId;
     }
@@ -68,7 +68,7 @@ public class Register extends AbstractBody {
     }
 
     /** 按照JT/T415-2006的5.4.12（0:未上车牌,1:蓝色,2:黄色,3:黑色,4:白色,9:其他） */
-    @Property(index = 36, type = DataType.BYTE, desc = "车牌颜色")
+    @Property(index = 75, type = DataType.BYTE, desc = "车牌颜色")
     public Integer getLicensePlateColor() {
         return licensePlateColor;
     }
@@ -78,7 +78,7 @@ public class Register extends AbstractBody {
     }
 
     /** 车牌颜色为0时,表示车辆VIN；否则,表示公安交通管理部门颁发的机动车号牌 */
-    @Property(index = 37, type = DataType.STRING, desc = "车牌")
+    @Property(index = 76, type = DataType.STRING, desc = "车牌")
     public String getLicensePlate() {
         return licensePlate;
     }
