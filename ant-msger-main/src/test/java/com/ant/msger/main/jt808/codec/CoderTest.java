@@ -156,7 +156,7 @@ public class CoderTest {
     @Test
     public void testAuth() {
         Authentication authentication = new Authentication();
-        authentication.setToken("013888888888_authed");
+        authentication.setToken("12345678913888888888_authed");
 
         Message<Authentication> msg = new Message<>();
         msg.setType(0x0102);
