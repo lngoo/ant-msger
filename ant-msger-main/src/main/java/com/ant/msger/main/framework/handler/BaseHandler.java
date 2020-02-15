@@ -3,6 +3,7 @@ package com.ant.msger.main.framework.handler;
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
+import com.ant.msger.main.framework.commons.enumeration.ProtocolCommunication;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
@@ -27,7 +28,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
     protected HandlerMapper handlerMapper;
     protected ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
 
-    protected AbstractMessage consumerMessage(Protocol protocol, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
+    protected AbstractMessage consumerMessage(ProtocolCommunication protocolCommunication, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
         Handler handler = handlerMapper.getHandler(messageRequest.getDelimiter(), messageRequest.getType());
         Type[] types = handler.getTargetParameterTypes();
 
@@ -36,7 +37,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
             messageResponse = handler.invoke(messageRequest);
         } else if (StringUtils.equals("register", handler.getTargetMethod().getName())
             || StringUtils.equals("authentication", handler.getTargetMethod().getName())) {
-            if (protocol == Protocol.UDP) {
+            if (protocolCommunication == ProtocolCommunication.UDP) {
                 session = initUdpSession((Message) messageRequest, socketAddress);
             }
             messageResponse = handler.invoke(messageRequest, session);
@@ -62,7 +63,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
         session.setTerminalId(message.getMobileNumber());
         session.setId(message.getMobileNumber());
         session.setSocketAddress(socketAddress);
-        session.setProtocol(Protocol.UDP);
+        session.setProtocolCommunication(ProtocolCommunication.UDP);
         session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;

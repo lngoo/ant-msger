@@ -6,7 +6,7 @@ import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.PropertyUtils;
 import com.ant.msger.main.framework.commons.bean.BeanUtils;
-import com.ant.msger.main.framework.commons.constant.GlobalConstant;
+import com.ant.msger.main.framework.commons.constant.GlobalConfig;
 import com.ant.msger.main.framework.commons.transform.Bcd;
 import com.ant.msger.main.framework.commons.transform.ByteBufUtils;
 import com.ant.msger.main.framework.mapping.Handler;
@@ -15,7 +15,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.swagger.models.auth.In;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
@@ -39,7 +38,7 @@ public class JT808MessageBaseDecoder {
         }
 
         // 不是标准标识符，不解析报文
-        if (!Arrays.asList(GlobalConstant.delimiters).contains(delimiter)) {
+        if (!Arrays.asList(GlobalConfig.delimiters()).contains(delimiter)) {
             return null;
         }
 

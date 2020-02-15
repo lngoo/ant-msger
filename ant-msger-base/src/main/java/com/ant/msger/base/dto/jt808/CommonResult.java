@@ -19,7 +19,7 @@ public class CommonResult extends AbstractBody {
 
     private Integer replyId;
 
-    private Integer resultCode;
+    private Integer resultCode =0; // 默认成功，防止protobuf转换丢失
 
     public CommonResult() {
     }

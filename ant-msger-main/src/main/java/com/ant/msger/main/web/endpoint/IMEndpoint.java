@@ -5,20 +5,24 @@ import com.ant.msger.base.annotation.Mapping;
 import com.ant.msger.base.dto.jt808.*;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.SyncFuture;
+import com.ant.msger.main.framework.commons.constant.GlobalConfig;
+import com.ant.msger.main.framework.commons.enumeration.ProtocolBusiness;
 import com.ant.msger.main.framework.session.MessageManager;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
-import com.ant.msger.main.mq.sender.RequestDataJT808Sender;
+import com.ant.msger.main.mq.publisher.RequestDataPublisher;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.ant.msger.base.common.MessageId.*;
@@ -29,7 +33,7 @@ import static com.ant.msger.base.common.MessageId.*;
 public class IMEndpoint extends BaseEndpoint {
 
     @Autowired
-    RequestDataJT808Sender jt808Sender;
+    RequestDataPublisher jt808Sender;
 
     private static final Logger logger = LoggerFactory.getLogger(IMEndpoint.class.getSimpleName());
 
@@ -39,7 +43,7 @@ public class IMEndpoint extends BaseEndpoint {
 
     @Override
     public Integer getPointType() {
-        return DELIMITER_IM;
+        return GlobalConfig.protocolBusinessMap().get(ProtocolBusiness.AntIM.name());
     }
 
     //TODO Test
@@ -169,7 +173,7 @@ public class IMEndpoint extends BaseEndpoint {
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
-        jt808Sender.send(message);
+        jt808Sender.send(message, session.getId(), ProtocolBusiness.AntIM);
         return null;
 //        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
 //        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
@@ -206,7 +210,7 @@ public class IMEndpoint extends BaseEndpoint {
         sessionManager.put(message.getMobileNumber(), session);
 
         // 发送到redis
-        jt808Sender.send(message);
+        jt808Sender.send(message, session.getId(), ProtocolBusiness.AntIM);
         return null;
 //        CommonResult result = new CommonResult(终端鉴权, message.getSerialNumber(), CommonResult.Success);
 //        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
@@ -234,7 +238,7 @@ public class IMEndpoint extends BaseEndpoint {
         PositionReport body = message.getBody();
         //TODO
         // 发送到redis
-        jt808Sender.send(message);
+        jt808Sender.send(message, session.getId(), ProtocolBusiness.AntIM);
         return null;
 
 //        CommonResult result = new CommonResult(位置信息汇报, message.getSerialNumber(), CommonResult.Success);

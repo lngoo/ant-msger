@@ -1,6 +1,6 @@
 package com.ant.msger.main.framework.session;
 
-import com.ant.msger.main.framework.handler.Protocol;
+import com.ant.msger.main.framework.commons.enumeration.ProtocolCommunication;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
@@ -8,7 +8,7 @@ import java.net.SocketAddress;
 
 public class Session {
 
-    private Protocol protocol;
+    private ProtocolCommunication protocolCommunication;
     private String id;
     private String terminalId;
     private InetSocketAddress socketAddress = null;
@@ -41,12 +41,12 @@ public class Session {
         return session;
     }
 
-    public Protocol getProtocol() {
-        return protocol;
+    public ProtocolCommunication getProtocolCommunication() {
+        return protocolCommunication;
     }
 
-    public void setProtocol(Protocol protocol) {
-        this.protocol = protocol;
+    public void setProtocolCommunication(ProtocolCommunication protocolCommunication) {
+        this.protocolCommunication = protocolCommunication;
     }
 
     public String getId() {

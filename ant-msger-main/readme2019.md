@@ -22,7 +22,8 @@
 a:b:c:response
 
 ---------------------------------------
-http://www.websocket-test.com/
+http://www.websocket-test.com/  websocket测试地址
+http://ddrv.cn/a/413385         protobuf 工具类
 
 
 

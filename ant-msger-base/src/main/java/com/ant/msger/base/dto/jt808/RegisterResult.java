@@ -21,7 +21,7 @@ public class RegisterResult extends AbstractBody {
     public static final int NotFoundTerminal = 4;
 
     private Integer serialNumber;
-    private Integer resultCode;
+    private Integer resultCode = 0; // 默认设置成功
     private String token;
 
     public RegisterResult() {

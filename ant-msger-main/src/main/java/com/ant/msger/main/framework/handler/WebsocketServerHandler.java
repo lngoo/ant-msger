@@ -2,14 +2,12 @@ package com.ant.msger.main.framework.handler;
 
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractMessage;
+import com.ant.msger.main.framework.commons.enumeration.ProtocolCommunication;
 import com.ant.msger.main.framework.log.Logger;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.session.Session;
-import com.ant.msger.main.web.jt808.codec.JT808MessageEncodeHelper;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -39,7 +37,7 @@ public class WebsocketServerHandler extends BaseHandler {
             Session session = sessionManager.getBySessionId(Session.buildId(channel));
 
             // 消息事件处理
-            AbstractMessage messageResponse = consumerMessage(Protocol.WEBSOCKET, messageRequest, socketAddress, session);
+            AbstractMessage messageResponse = consumerMessage(ProtocolCommunication.WEBSOCKET, messageRequest, socketAddress, session);
 
             if (messageResponse != null) {
                 protocolMsgSender.sendWebsocketMsgSingle(session, (Message) messageResponse);
@@ -52,7 +50,7 @@ public class WebsocketServerHandler extends BaseHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Session session = Session.buildSession(ctx.channel());
-        session.setProtocol(Protocol.WEBSOCKET);
+        session.setProtocolCommunication(ProtocolCommunication.WEBSOCKET);
         sessionManager.put(session.getId(), session);
         logger.logEvent("WEBSOCKET终端连接", session);
     }

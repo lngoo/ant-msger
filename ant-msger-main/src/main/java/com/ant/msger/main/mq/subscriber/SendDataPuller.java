@@ -1,10 +1,10 @@
-package com.ant.msger.main.mq.puller;
+package com.ant.msger.main.mq.subscriber;
 
 import com.ant.msger.base.common.MessageId;
 import com.ant.msger.base.dto.jt808.CommonResult;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AntSendChannelMsg;
-import com.ant.msger.main.framework.handler.Protocol;
+import com.ant.msger.main.framework.commons.enumeration.ProtocolCommunication;
 import com.ant.msger.main.framework.sender.ProtocolMsgSender;
 import com.ant.msger.main.framework.session.Session;
 import com.ant.msger.main.framework.session.SessionManager;
@@ -21,7 +21,7 @@ public class SendDataPuller {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
 
-    @Value("${redis.key.queue.send}")
+    @Value("${redis.key.queue.response}")
     String redisKey;
 
     private XStream xstream = new XStream();
@@ -81,9 +81,9 @@ public class SendDataPuller {
         message.setSerialNumber(session.currentFlowId());
 
         // 发送消息
-        if (Protocol.UDP == session.getProtocol()) {
+        if (ProtocolCommunication.UDP == session.getProtocolCommunication()) {
             protocolMsgSender.sendUdpMsgSingle(session, message);
-        } else if (Protocol.WEBSOCKET == session.getProtocol()) {
+        } else if (ProtocolCommunication.WEBSOCKET == session.getProtocolCommunication()) {
             protocolMsgSender.sendWebsocketMsgSingle(session, message);
         } else {
             protocolMsgSender.sendTcpMsgSingle(session, message);

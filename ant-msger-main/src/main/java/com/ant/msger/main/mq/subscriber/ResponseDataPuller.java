@@ -1,4 +1,4 @@
-package com.ant.msger.main.mq.puller;
+package com.ant.msger.main.mq.subscriber;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -7,12 +7,10 @@ import com.ant.msger.base.enums.SubjectType;
 import com.ant.msger.base.session.TopicUser;
 import com.ant.msger.base.session.UserDevice;
 import com.ant.msger.main.mq.ThreadPool;
-import com.ant.msger.main.mq.callable.DialogUserUpdator;
 import com.ant.msger.main.mq.callable.UserDeviceUpdator;
 import com.ant.msger.main.persistence.dao.UserDeviceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
