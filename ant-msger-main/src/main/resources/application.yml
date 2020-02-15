@@ -6,7 +6,7 @@ spring:
 #    username: root
 #    password: abc@!321
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://49.232.172.2:3306/msger?characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://49.232.172.2:3306/msger?characterEncoding=utf-8&useSSL=false&allowMutiQueries=true
     username: root
     password: 123456
 
@@ -22,6 +22,10 @@ mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
   type-aliases-package: com.ant.msger.main.persistence.entity
 
+# 打印sql
+logging:
+  level:
+    com.ant.msger.main.persistence.dao: debug
 
 server:
   port: 8000

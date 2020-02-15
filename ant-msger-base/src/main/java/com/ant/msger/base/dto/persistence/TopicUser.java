@@ -1,24 +1,24 @@
-package com.ant.msger.base.session;
+package com.ant.msger.base.dto.persistence;
 
 import java.util.Date;
 
-public class TopicUser extends SessionObject{
-    private String dialogId;
+public class TopicUser extends PersistenceObject {
+    private String topicId;
     private String userId;
     private Date expireTime;
 
-    public TopicUser(String dialogId, String userId, Date expireTime) {
-        this.dialogId = dialogId;
+    public TopicUser(String topicId, String userId, Date expireTime) {
+        this.topicId = topicId;
         this.userId = userId;
         this.expireTime = expireTime;
     }
 
-    public String getDialogId() {
-        return dialogId;
+    public String getTopicId() {
+        return topicId;
     }
 
-    public void setDialogId(String dialogId) {
-        this.dialogId = dialogId;
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
     }
 
     public String getUserId() {

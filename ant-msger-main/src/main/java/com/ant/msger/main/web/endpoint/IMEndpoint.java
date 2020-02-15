@@ -164,8 +164,8 @@ public class IMEndpoint extends BaseEndpoint {
     public Message<RegisterResult> register(Message<Register> message, Session session) {
 //        Register body = message.getBody();
         //TODO
-//        if (session == null) {
-//            session = initSession(message, socketAddress);
+//        if (persistence == null) {
+//            persistence = initSession(message, socketAddress);
 //        }
 
         System.out.println("%%%%%%%%%%%% IM &&&&&&&&&&&&&&");
@@ -176,17 +176,17 @@ public class IMEndpoint extends BaseEndpoint {
         jt808Sender.send(message, session.getId(), ProtocolBusiness.AntIM);
         return null;
 //        RegisterResult result = new RegisterResult(message.getSerialNumber(), RegisterResult.Success, "test_token");
-//        return new Message(终端注册应答, session.currentFlowId(), message.getMobileNumber(), result);
+//        return new Message(终端注册应答, persistence.currentFlowId(), message.getMobileNumber(), result);
     }
 
 //    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
-//        Session session = new Session();
-//        session.setTerminalId(message.getMobileNumber());
-//        session.setId(message.getMobileNumber());
-//        session.setSocketAddress(socketAddress);
-//        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
-//        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-//        return session;
+//        Session persistence = new Session();
+//        persistence.setTerminalId(message.getMobileNumber());
+//        persistence.setId(message.getMobileNumber());
+//        persistence.setSocketAddress(socketAddress);
+//        persistence.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+//        persistence.setLastCommunicateTimeStamp(System.currentTimeMillis());
+//        return persistence;
 //    }
 
     @Mapping(types = 终端注销, desc = "终端注销")
@@ -200,11 +200,11 @@ public class IMEndpoint extends BaseEndpoint {
     public Message authentication(Message<Authentication> message, Session session) {
 //        Authentication body = message.getBody();
         //TODO
-//        session.setTerminalId(message.getMobileNumber());
-//        sessionManager.put(Session.buildId(session.getChannel()), session);
+//        persistence.setTerminalId(message.getMobileNumber());
+//        sessionManager.put(Session.buildId(persistence.getChannel()), persistence);
 //        // UDP
-//        if (null == session.getId()) {
-//            session = reCreateSession(message, socketAddress);
+//        if (null == persistence.getId()) {
+//            persistence = reCreateSession(message, socketAddress);
 //        }
         session.setTerminalId(message.getMobileNumber());
         sessionManager.put(message.getMobileNumber(), session);
@@ -213,16 +213,16 @@ public class IMEndpoint extends BaseEndpoint {
         jt808Sender.send(message, session.getId(), ProtocolBusiness.AntIM);
         return null;
 //        CommonResult result = new CommonResult(终端鉴权, message.getSerialNumber(), CommonResult.Success);
-//        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
+//        return new Message(平台通用应答, persistence.currentFlowId(), message.getMobileNumber(), result);
     }
 
 //    private Session reCreateSession(Message<Authentication> message, InetSocketAddress socketAddress) {
-//        Session session = new Session();
-//        session.setId(message.getMobileNumber());
-//        session.setSocketAddress(socketAddress);
-//        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
-//        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
-//        return session;
+//        Session persistence = new Session();
+//        persistence.setId(message.getMobileNumber());
+//        persistence.setSocketAddress(socketAddress);
+//        persistence.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+//        persistence.setLastCommunicateTimeStamp(System.currentTimeMillis());
+//        return persistence;
 //    }
 
     @Mapping(types = 终端升级结果通知, desc = "终端升级结果通知")
@@ -242,7 +242,7 @@ public class IMEndpoint extends BaseEndpoint {
         return null;
 
 //        CommonResult result = new CommonResult(位置信息汇报, message.getSerialNumber(), CommonResult.Success);
-//        return new Message(平台通用应答, session.currentFlowId(), message.getMobileNumber(), result);
+//        return new Message(平台通用应答, persistence.currentFlowId(), message.getMobileNumber(), result);
     }
 
     @Mapping(types = 人工确认报警消息, desc = "人工确认报警消息")

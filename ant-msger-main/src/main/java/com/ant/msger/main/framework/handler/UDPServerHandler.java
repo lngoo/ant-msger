@@ -63,8 +63,8 @@ public class UDPServerHandler extends BaseHandler {
 //    @Override
 //    public void channelInactive(ChannelHandlerContext ctx) {
 //        String sessionId = Session.buildId(ctx.channel());
-//        Session session = sessionManager.removeBySessionId(sessionId);
-//        logger.logEvent("断开连接", session);
+//        Session persistence = sessionManager.removeBySessionId(sessionId);
+//        logger.logEvent("断开连接", persistence);
 //        ctx.channel().close();
 //        // ctx.close();
 //    }
@@ -72,8 +72,8 @@ public class UDPServerHandler extends BaseHandler {
 //    @Override
 //    public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
 //        String sessionId = Session.buildId(ctx.channel());
-//        Session session = sessionManager.getBySessionId(sessionId);
-//        logger.logEvent("发生异常", session);
+//        Session persistence = sessionManager.getBySessionId(sessionId);
+//        logger.logEvent("发生异常", persistence);
 //        e.printStackTrace();
 //    }
 //
@@ -82,8 +82,8 @@ public class UDPServerHandler extends BaseHandler {
 //        if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
 //            IdleStateEvent event = (IdleStateEvent) evt;
 //            if (event.state() == IdleState.READER_IDLE) {
-//                Session session = this.sessionManager.removeBySessionId(Session.buildId(ctx.channel()));
-//                logger.logEvent("服务器主动断开连接", session);
+//                Session persistence = this.sessionManager.removeBySessionId(Session.buildId(ctx.channel()));
+//                logger.logEvent("服务器主动断开连接", persistence);
 //                ctx.close();
 //            }
 //        }

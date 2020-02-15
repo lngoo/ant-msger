@@ -1,6 +1,7 @@
 package com.ant.msger.main.mq;
 
 import com.ant.msger.main.mq.subscriber.ResponseMsgSubscriber;
+import com.ant.msger.main.mq.subscriber.TaskMsgSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,23 +19,26 @@ public class RedisMessageSubConfig {
     @Value("${redis.key.queue.response}")
     private String redisKeyResponseChannel;
 
+    @Value("${redis.key.queue.task}")
+    private String redisKeyTaskChannel;
+
     @Value("${system.msger.id}")
     private String msgerId;
 
     /**
      * 创建连接工厂
      * @param connectionFactory
-     * @param listenerAdapter
      * @return
      */
     @Bean
     public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-                                                   MessageListenerAdapter listenerAdapter){
+                                                   MessageListenerAdapter responseListenerAdapter,
+                                                   MessageListenerAdapter taskListenerAdapter){
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         //接受消息的key
-        container.addMessageListener(listenerAdapter, new ChannelTopic(redisKeyResponseChannel.concat(":").concat(msgerId)));
-//        container.addMessageListener(listenerAdapter,new PatternTopic("phone"));
+        container.addMessageListener(responseListenerAdapter, new ChannelTopic(redisKeyResponseChannel.concat(":").concat(msgerId)));
+        container.addMessageListener(taskListenerAdapter, new ChannelTopic(redisKeyTaskChannel));
 
         return container;
     }
@@ -45,16 +49,34 @@ public class RedisMessageSubConfig {
      * @return
      */
     @Bean
-    public MessageListenerAdapter listenerAdapter(ResponseMsgSubscriber subscriber){
+    public MessageListenerAdapter responseListenerAdapter(ResponseMsgSubscriber subscriber){
         return new MessageListenerAdapter(subscriber);
     }
 
     /**
-     * 注册发送-session订阅者
+     * 绑定消息监听者和接收监听的方法
      * @return
      */
     @Bean
-    public ResponseMsgSubscriber receiver() {
+    public MessageListenerAdapter taskListenerAdapter(TaskMsgSubscriber subscriber){
+        return new MessageListenerAdapter(subscriber);
+    }
+
+    /**
+     * 注册 响应通道 订阅者
+     * @return
+     */
+    @Bean
+    public ResponseMsgSubscriber responseReceiver() {
         return new ResponseMsgSubscriber();
+    }
+
+    /**
+     * 注册 任务通道 订阅者
+     * @return
+     */
+    @Bean
+    public TaskMsgSubscriber taskReceiver() {
+        return new TaskMsgSubscriber();
     }
 }

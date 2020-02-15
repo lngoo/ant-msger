@@ -1,8 +1,7 @@
 package com.ant.msger.main.framework.session;
 
-import com.ant.msger.base.session.TopicUser;
+import com.ant.msger.base.dto.persistence.TopicUser;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

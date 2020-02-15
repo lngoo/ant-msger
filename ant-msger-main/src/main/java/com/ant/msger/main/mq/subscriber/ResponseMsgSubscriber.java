@@ -20,13 +20,10 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
- * 响应通道（to-session）数据处理器
+ * 响应通道（to-persistence）数据处理器
  */
 public class ResponseMsgSubscriber implements MessageListener {
     private static final Logger LOG = LoggerFactory.getLogger("responseChannel");
-
-    @Autowired
-    RedisTemplate redisTemplate;
 
     private ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
 

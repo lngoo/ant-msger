@@ -2,12 +2,12 @@ package com.ant.msger.main.persistence.entity;
 
 import java.util.Date;
 
-public class UserDevice {
+public class TopicUser {
     private Integer id;
 
-    private String userId;
+    private String topicId;
 
-    private String deviceId;
+    private String userId;
 
     private Date expireTime;
 
@@ -19,20 +19,20 @@ public class UserDevice {
         this.id = id;
     }
 
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId == null ? null : topicId.trim();
+    }
+
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId == null ? null : userId.trim();
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId == null ? null : deviceId.trim();
     }
 
     public Date getExpireTime() {
