@@ -13,7 +13,7 @@ public class SessionManager {
     private static volatile SessionManager instance = null;
     // netty生成的sessionID和Session的对应关系
     private Map<String, Session> sessionIdMap;
-    // 终端号和netty生成的sessionID的对应关系
+    // 终端号（手机号/user_alias）和netty生成的sessionID的对应关系
     private Map<String, String> terminalMap;
 
     public SessionManager() {
