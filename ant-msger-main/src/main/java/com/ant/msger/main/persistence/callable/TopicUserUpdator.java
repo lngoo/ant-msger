@@ -49,29 +49,33 @@ public class TopicUserUpdator implements Callable<Boolean> {
             return true;
         }
 
-        switch (operateType) {
-            case ADD:
-                insertBatch(listDBBean);
-                break;
-            case UPDATE:
-                updateBatch(listDBBean);
-                break;
-            case DELETE:
-                deleteBatch(listDBBean);
-                break;
+        try {
+            switch (operateType) {
+                case ADD:
+                    insertBatch(listDBBean);
+                    break;
+                case UPDATE:
+                    updateBatch(listDBBean);
+                    break;
+                case DELETE:
+                    deleteBatch(listDBBean);
+                    break;
+            }
+        } catch (Exception e) {
+            LOG.warn("#### exception occurred when save db data...", e);
         }
         return true;
     }
 
-    private void deleteBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) {
+    private void deleteBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) throws Exception {
         mapper.deleteBatch(listDBBean);
     }
 
-    private void updateBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) {
+    private void updateBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) throws Exception {
         mapper.updateBatch(listDBBean);
     }
 
-    private void insertBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) {
+    private void insertBatch(List<com.ant.msger.main.persistence.entity.TopicUser> listDBBean) throws Exception {
         mapper.insertBatch(listDBBean);
     }
 

@@ -17,9 +17,9 @@ public interface TopicUserMapper {
 
     int updateByPrimaryKey(TopicUser record);
 
-    void insertBatch(List<TopicUser> listDBBean);
+    void insertBatch(List<TopicUser> listDBBean) throws Exception;
 
-    void updateBatch(List<TopicUser> listDBBean);
+    void updateBatch(List<TopicUser> listDBBean) throws Exception;
 
-    void deleteBatch(List<TopicUser> listDBBean);
+    void deleteBatch(List<TopicUser> listDBBean) throws Exception;
 }

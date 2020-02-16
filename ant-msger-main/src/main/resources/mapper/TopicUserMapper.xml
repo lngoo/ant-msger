@@ -97,7 +97,7 @@
         expire_time=#{item.expireTime,jdbcType=TIMESTAMP}
       </set>
       <where>
-        user_id = #{item.userId} and topic_id=#{item.topicId}
+        user_id = #{item.userId,jdbcType=VARCHAR} and topic_id=#{item.topicId,jdbcType=VARCHAR}
       </where>
     </foreach>
   </update>
@@ -106,9 +106,9 @@
     <foreach close="" collection="list" index="index" item="item" open="" separator=";">
       DELETE FROM  topic_user
       <where>
-        topic_id=#{item.topic_id}
-        <if test="id != null">
-          and user_id = #{item.userId}
+        topic_id=#{item.topicId,jdbcType=VARCHAR}
+        <if test="item.userId != null">
+          and user_id = #{item.userId,jdbcType=VARCHAR}
         </if>
       </where>
     </foreach>
