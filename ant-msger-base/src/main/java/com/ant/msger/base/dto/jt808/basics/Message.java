@@ -25,6 +25,8 @@ public class Message<T extends AbstractBody> extends AbstractMessage<T> {
     protected Integer versionFlag = 1;
     protected Integer reservedBit = 0;
 
+    protected String sessionId; // 响应通道消息处理的时候需要下，不是消息体的一部分
+
     public Message() {
     }
 
@@ -193,5 +195,13 @@ public class Message<T extends AbstractBody> extends AbstractMessage<T> {
 
     public void setReservedBit(Integer reservedBit) {
         this.reservedBit = reservedBit;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

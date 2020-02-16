@@ -11,13 +11,10 @@ import com.ant.msger.main.framework.session.SessionManager;
 import com.ant.msger.main.mq.util.LocalProtoBufUtil;
 import com.ant.msger.main.mq.util.MessageConvertUtil;
 import com.antnest.msger.proto.ProtoMain;
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * 响应通道（to-persistence）数据处理器
@@ -36,16 +33,18 @@ public class ResponseMsgSubscriber implements MessageListener {
             ProtoMain.Message message1 = ProtoMain.Message.parseFrom(body);
             MessageExternal external = LocalProtoBufUtil.copyProtoBeanToMessageExternal(message1);
             com.ant.msger.base.dto.jt808.basics.Message message2 = MessageConvertUtil.toInternal(external, GlobalConfig.protocolBusinessMap());
+
             // 发送到设备
-            sendMsgToDevice(message2);
+            String sessionId = message1.getSendTo();
+            sendMsgToSession(message2, sessionId);
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("#################### end ... ");
     }
 
-    private void sendMsgToDevice(com.ant.msger.base.dto.jt808.basics.Message message) {
-        Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
+    private void sendMsgToSession(com.ant.msger.base.dto.jt808.basics.Message message, String sessionId) {
+        Session session = SessionManager.getInstance().getBySessionId(sessionId);
         if (message.getBody() instanceof CommonResult) {
             CommonResult commonResult = (CommonResult) message.getBody();
             if (commonResult.getReplyId() == MessageId.终端鉴权

@@ -17,12 +17,10 @@ import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.ant.msger.base.common.MessageId.*;
@@ -52,7 +50,7 @@ public class JT808Endpoint extends BaseEndpoint {
         if (!hexMessage.startsWith("7e"))
             hexMessage = "7e" + hexMessage + "7e";
         ByteBuf msg = Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(hexMessage));
-        Session session = SessionManager.getInstance().getByMobileNumber(mobileNumber);
+        Session session = SessionManager.getInstance().getByUserAlias(mobileNumber).iterator().next();
 
 
         session.getChannel().writeAndFlush(msg);
@@ -74,7 +72,7 @@ public class JT808Endpoint extends BaseEndpoint {
 
     public Object send(Message message, boolean hasReplyFlowIdId) {
         String mobileNumber = message.getMobileNumber();
-        Session session = sessionManager.getByMobileNumber(mobileNumber);
+        Session session = sessionManager.getByUserAlias(mobileNumber).iterator().next();
         message.setSerialNumber(session.currentFlowId());
 
         session.getChannel().writeAndFlush(message);
@@ -167,8 +165,8 @@ public class JT808Endpoint extends BaseEndpoint {
 //        if (persistence == null) {
 //            persistence = initSession(message, socketAddress);
 //        }
-        session.setTerminalId(message.getMobileNumber());
-        sessionManager.put(message.getMobileNumber(), session);
+        session.setUserAlias(message.getMobileNumber());
+        sessionManager.put(session.getId(), session);
 
         // 发送到redis
         jt808Sender.send(message, session.getId(), ProtocolBusiness.Jt808);
@@ -179,7 +177,7 @@ public class JT808Endpoint extends BaseEndpoint {
 
 //    private Session initSession(Message<Register> message, InetSocketAddress socketAddress) {
 //        Session persistence = new Session();
-//        persistence.setTerminalId(message.getMobileNumber());
+//        persistence.setUserAlias(message.getMobileNumber());
 //        persistence.setId(message.getMobileNumber());
 //        persistence.setSocketAddress(socketAddress);
 //        persistence.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
@@ -198,14 +196,14 @@ public class JT808Endpoint extends BaseEndpoint {
     public Message authentication(Message<Authentication> message, Session session) {
 //        Authentication body = message.getBody();
         //TODO
-//        persistence.setTerminalId(message.getMobileNumber());
+//        persistence.setUserAlias(message.getMobileNumber());
 //        sessionManager.put(Session.buildId(persistence.getChannel()), persistence);
 //        // UDP
 //        if (null == persistence.getId()) {
 //            persistence = reCreateSession(message, socketAddress);
 //        }
-        session.setTerminalId(message.getMobileNumber());
-        sessionManager.put(message.getMobileNumber(), session);
+        session.setUserAlias(message.getMobileNumber());
+        sessionManager.put(session.getId(), session);
 
         // 发送到redis
         jt808Sender.send(message, session.getId(), ProtocolBusiness.Jt808);

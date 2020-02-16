@@ -33,7 +33,7 @@ public class UDPServerHandler extends BaseHandler {
             DecodeResult decodeResult = (DecodeResult) msg;
             AbstractMessage messageRequest = decodeResult.getMessage();
             InetSocketAddress socketAddress = decodeResult.getDatagramPacket().sender();
-            Session session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
+            Session session = sessionManager.getBySessionId(Session.buildId(socketAddress));
 
             // 消息事件处理
             AbstractMessage messageResponse = consumerMessage(ProtocolCommunication.UDP, messageRequest, socketAddress, session);

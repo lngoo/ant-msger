@@ -42,7 +42,8 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
             }
             messageResponse = handler.invoke(messageRequest, session);
         } else {
-            session = sessionManager.getByMobileNumber(getMobileNum(messageRequest));
+            // 为什么还需要取一次？
+//            session = sessionManager.getByUserAlias(getMobileNum(messageRequest));
             // session是否过期了，过期了直接返回失败
             if (null == session
                     || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60 * sessionMinutes) {
@@ -60,8 +61,8 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
 
     private Session initUdpSession(Message message, InetSocketAddress socketAddress) {
         Session session = new Session();
-        session.setTerminalId(message.getMobileNumber());
-        session.setId(message.getMobileNumber());
+        session.setUserAlias(message.getMobileNumber());
+        session.setId(Session.buildId(socketAddress));
         session.setSocketAddress(socketAddress);
         session.setProtocolCommunication(ProtocolCommunication.UDP);
         session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());

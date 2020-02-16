@@ -10,7 +10,7 @@ public class Session {
 
     private ProtocolCommunication protocolCommunication;
     private String id;
-    private String terminalId;
+    private String userAlias;  // 手机号(JT808)或用户名(IM)
     private InetSocketAddress socketAddress = null;
     private Channel channel = null;
     private boolean isAuthenticated = false;
@@ -28,6 +28,10 @@ public class Session {
         return channel.id().asLongText();
     }
 
+    public static String buildId(InetSocketAddress socketAddress) {
+        return socketAddress.getAddress() + ":" + socketAddress.getPort();
+    }
+
     public static Session buildSession(Channel channel) {
         return buildSession(channel, null);
     }
@@ -36,7 +40,7 @@ public class Session {
         Session session = new Session();
         session.setChannel(channel);
         session.setId(buildId(channel));
-        session.setTerminalId(terminalId);
+        session.setUserAlias(terminalId);
         session.setLastCommunicateTimeStamp(System.currentTimeMillis());
         return session;
     }
@@ -57,12 +61,12 @@ public class Session {
         this.id = id;
     }
 
-    public String getTerminalId() {
-        return terminalId;
+    public String getUserAlias() {
+        return userAlias;
     }
 
-    public void setTerminalId(String terminalId) {
-        this.terminalId = terminalId;
+    public void setUserAlias(String userAlias) {
+        this.userAlias = userAlias;
     }
 
     public InetSocketAddress getSocketAddress() {
@@ -134,6 +138,6 @@ public class Session {
 
     @Override
     public String toString() {
-        return "Session [identity=" + id + ", terminalId=" + terminalId + ", channel=" + channel + "]";
+        return "Session [identity=" + id + ", userAlias=" + userAlias + ", channel=" + channel + "]";
     }
 }

@@ -15,6 +15,7 @@ public class MessageConvertUtil {
         message.setDelimiter(protocolMap.get(external.getProtocolType()));
         message.setType(external.getCmd());
         message.setMobileNumber(external.getUserAlias());
+        message.setSessionId(external.getSessionId());
         message.setBody(external.getMsgBody());
         return message;
     }

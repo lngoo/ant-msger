@@ -15,7 +15,7 @@ public class Logger {
     }
 
     public String logEvent(String event, Session session) {
-        String log = event + " " + session.getTerminalId();
+        String log = event + " " + session.getUserAlias();
         logger.info(log);
         return log;
     }

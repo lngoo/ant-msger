@@ -67,7 +67,7 @@
 //    }
 //
 //    private void sendMsgToDevice(Message message) {
-//        Session session = SessionManager.getInstance().getByMobileNumber(message.getMobileNumber());
+//        Session session = SessionManager.getInstance().getByUserAlias(message.getMobileNumber());
 //        if (message.getBody() instanceof CommonResult) {
 //            CommonResult commonResult = (CommonResult) message.getBody();
 //            if (commonResult.getReplyId() == MessageId.终端鉴权
