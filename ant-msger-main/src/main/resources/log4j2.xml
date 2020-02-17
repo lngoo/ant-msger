@@ -32,6 +32,34 @@
                 <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
         </RollingRandomAccessFile>
+        <!-- 这个会打印出所有的info及以下级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingRandomAccessFile name="toTopicChannel" fileName="${LOG_HOME}/toTopicChannel/info.log"
+                                 filePattern="${LOG_HOME}/toTopicChannel/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %C[%L] - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="toUserChannel" fileName="${LOG_HOME}/toUserChannel/info.log"
+                                 filePattern="${LOG_HOME}/toUserChannel/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %C[%L] - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="taskChannel" fileName="${LOG_HOME}/taskChannel/info.log"
+                                 filePattern="${LOG_HOME}/taskChannel/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %C[%L] - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
     </Appenders>
 
     <Loggers>
@@ -42,8 +70,16 @@
 
         <!--将logger中的 additivity 属性配置为 false，则这个logger不会将日志流反馈到root中。-->
         <Logger name="responseChannel" additivity="true" level="INFO">
-            <!--<appender-ref ref="sendCodeFile" level="INFO" />-->
             <appender-ref ref="responseChannel" level="INFO" />
+        </Logger>
+        <Logger name="toTopicChannel" additivity="true" level="INFO">
+            <appender-ref ref="toTopicChannel" level="INFO" />
+        </Logger>
+        <Logger name="toUserChannel" additivity="true" level="INFO">
+            <appender-ref ref="toUserChannel" level="INFO" />
+        </Logger>
+        <Logger name="taskChannel" additivity="true" level="INFO">
+            <appender-ref ref="taskChannel" level="INFO" />
         </Logger>
     </Loggers>
 </Configuration>
