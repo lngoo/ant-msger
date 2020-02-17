@@ -5,9 +5,7 @@ import com.ant.msger.main.persistence.dao.TopicUserMapper;
 import com.ant.msger.main.persistence.entity.TopicUser;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -33,6 +31,25 @@ public class TopicManager {
 
     public TopicManager() {
         this.map = new ConcurrentHashMap<>();
+    }
+
+
+    public Set<TopicUser> getByTopicId(String topicId) {
+        if (StringUtils.isEmpty(topicId)) {
+            return null;
+        }
+
+        Set<TopicUser> set = map.get(topicId);
+        // 去除掉过期的
+        Date now = new Date();
+        set.removeIf(topicUser -> {
+            if (null != topicUser.getExpireTime() && topicUser.getExpireTime().before(now)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        return set;
     }
 
     public boolean loadDBDatas(TopicUserMapper mapper) {

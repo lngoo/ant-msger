@@ -21,7 +21,7 @@
     select
     <include refid="Base_Column_List" />
     from topic_user
-    where expire_time > now()
+    where expire_time is null or expire_time > now()
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

@@ -304,7 +304,8 @@ public class CoderTest {
 
         Message<Register> msg = new Message<>();
         msg.setType(0X0100);
-        msg.setMobileNumber("12345678913888888888");
+//        msg.setMobileNumber("12345678913888888888");
+        msg.setMobileNumber("12345678913888889999");
         msg.setSerialNumber(102);
         msg.setBody(res);
         return msg;
