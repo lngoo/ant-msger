@@ -16,6 +16,14 @@
     from topic_user
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <select id="loadAllEffective" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from topic_user
+    where expire_time > now()
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from topic_user
     where id = #{id,jdbcType=INTEGER}

@@ -4,6 +4,9 @@ import com.ant.msger.main.framework.TCPServer;
 import com.ant.msger.main.framework.WebsocketServer;
 import com.ant.msger.main.framework.commons.constant.GlobalConfig;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.session.TopicManager;
+import com.ant.msger.main.persistence.dao.TopicUserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +34,9 @@ public class NettyConfig {
 
     @Value("${system.websocket.port:7614}")
     private int websocketPort;
+
+    @Autowired
+    private TopicUserMapper topicUserMapper;
 
     @Value("#{${system.msger.protocol}}")
     Map<String, Integer> protocolMap;
@@ -64,6 +70,9 @@ public class NettyConfig {
      */
     @Bean(name="globalConfig")
     public GlobalConfig globalConfig() {
+        // 初始化topicuser缓存数据
+        TopicManager.getInstance().loadDBDatas(topicUserMapper);
+        // 缓存业务协议配置表
         return new GlobalConfig(protocolMap);
     }
 

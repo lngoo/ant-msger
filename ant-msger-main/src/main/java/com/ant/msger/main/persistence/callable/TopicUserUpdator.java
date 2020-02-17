@@ -2,6 +2,7 @@ package com.ant.msger.main.persistence.callable;
 
 import com.ant.msger.base.enums.OperateType;
 import com.ant.msger.base.dto.persistence.TopicUser;
+import com.ant.msger.main.framework.session.TopicManager;
 import com.ant.msger.main.persistence.dao.TopicUserMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -61,6 +62,8 @@ public class TopicUserUpdator implements Callable<Boolean> {
                     deleteBatch(listDBBean);
                     break;
             }
+            // 更新缓存
+            TopicManager.getInstance().updateCacheDatas(operateType, listDBBean);
         } catch (Exception e) {
             LOG.warn("#### exception occurred when save db data...", e);
         }

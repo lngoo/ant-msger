@@ -22,4 +22,6 @@ public interface TopicUserMapper {
     void updateBatch(List<TopicUser> listDBBean) throws Exception;
 
     void deleteBatch(List<TopicUser> listDBBean) throws Exception;
+
+    List<TopicUser> loadAllEffective()throws Exception;
 }
