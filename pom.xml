@@ -5,6 +5,7 @@
     <modules>
         <module>ant-msger-base</module>
         <module>ant-msger-main</module>
+        <module>ant-msger-convertor</module>
     </modules>
 
     <parent>
