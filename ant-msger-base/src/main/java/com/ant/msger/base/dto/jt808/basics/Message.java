@@ -70,8 +70,8 @@ public class Message<T extends AbstractBody> extends AbstractMessage<T> {
 
     @Property(index = 2, type = DataType.WORD, desc = "消息体属性")
     public Integer getBodyProperties() {
-        if (bodyLength >= 1024)
-            System.out.println("The max value of msgLen is 1023, but {} ." + bodyLength);
+        if (bodyLength > 1024)
+            System.out.println("The max value of msgLen is 1024, but {} ." + bodyLength);
         int subPkg = subPackage ? 1 : 0;
         int ret = (bodyLength & 0x3FF) |
                 ((encryptionType << 10) & 0x1C00) |

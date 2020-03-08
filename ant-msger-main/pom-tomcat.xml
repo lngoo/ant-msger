@@ -13,19 +13,19 @@
     <artifactId>ant-msger-main</artifactId>
 
     <dependencies>
-<!--        &lt;!&ndash; 外部tomcat依赖加入 &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>javax.servlet</groupId>-->
-<!--            <artifactId>javax.servlet-api</artifactId>-->
-<!--            <version>3.0.1</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
-<!--        &lt;!&ndash; 外部tomcat依赖加入 &ndash;&gt;-->
-        <!-- 外部tomcat依赖需注释 -->
+        <!-- 外部tomcat依赖加入 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jetty</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- 外部tomcat依赖加入 -->
+        <!-- 外部tomcat依赖需注释 -->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-jetty</artifactId>-->
+<!--        </dependency>-->
         <!-- 外部tomcat依赖需注释 -->
 
         <dependency>

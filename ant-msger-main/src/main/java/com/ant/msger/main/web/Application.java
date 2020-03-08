@@ -10,6 +10,10 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
+/**
+ * 注意只能tomcat启动了
+ *
+ */
 @EnableWebSocket
 @SpringBootApplication
 @ComponentScan({"com.ant.msger"})
