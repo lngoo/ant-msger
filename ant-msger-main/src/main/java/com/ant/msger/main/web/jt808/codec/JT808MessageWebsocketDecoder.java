@@ -2,13 +2,11 @@ package com.ant.msger.main.web.jt808.codec;
 
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
-import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.handler.codec.string.StringDecoder;
 
 import java.util.List;
 
@@ -20,13 +18,15 @@ import java.util.List;
 //public class JT808MessageWebsocketDecoder extends StringDecoder {
 public class JT808MessageWebsocketDecoder extends MessageToMessageDecoder {
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService fragMsgService;
     private JT808MessageBaseDecoder baseDecoder = new JT808MessageBaseDecoder();
 
     public JT808MessageWebsocketDecoder() {
     }
 
-    public JT808MessageWebsocketDecoder(HandlerMapper handlerMapper) {
+    public JT808MessageWebsocketDecoder(HandlerMapper handlerMapper, RedisFragMsgService fragMsgService) {
         this.handlerMapper = handlerMapper;
+        this.fragMsgService = fragMsgService;
     }
 
     @Override
@@ -34,7 +34,8 @@ public class JT808MessageWebsocketDecoder extends MessageToMessageDecoder {
         ByteBuf in = (ByteBuf) o;
 
         // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(in, handlerMapper);
+        String clientSign = channelHandlerContext.channel().id().asLongText();
+        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(clientSign, in, handlerMapper, fragMsgService);
         if (null == message) {
             return;
         }

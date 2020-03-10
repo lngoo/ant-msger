@@ -2,6 +2,7 @@ package com.ant.msger.main.framework;
 
 import com.ant.msger.main.framework.handler.TCPServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageTcpDecoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -32,14 +33,13 @@ public class TCPServer {
     private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService redisFragMsgService;
 
-    public TCPServer() {
-    }
-
-    public TCPServer(int port, HandlerMapper handlerMapper, int sessionMinutes) {
+    public TCPServer(int port, HandlerMapper handlerMapper, RedisFragMsgService redisFragMsgService, int sessionMinutes) {
         this.port = port;
         this.handlerMapper = handlerMapper;
         this.sessionMinutes = sessionMinutes;
+        this.redisFragMsgService = redisFragMsgService;
     }
 
     private void bind() throws Exception {
@@ -56,7 +56,7 @@ public class TCPServer {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(30, 0, 0, TimeUnit.MINUTES));
                         // 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
 //                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[]{delimiter}), Unpooled.wrappedBuffer(new byte[]{delimiter, delimiter})));
-                        ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper));
+                        ch.pipeline().addLast(new JT808MessageTcpDecoder(handlerMapper, redisFragMsgService));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new TCPServerHandler(handlerMapper, sessionMinutes));
                     }

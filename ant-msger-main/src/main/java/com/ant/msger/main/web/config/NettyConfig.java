@@ -4,6 +4,7 @@ import com.ant.msger.main.framework.TCPServer;
 import com.ant.msger.main.framework.WebsocketServer;
 import com.ant.msger.main.framework.commons.constant.GlobalConfig;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.framework.session.TopicManager;
 import com.ant.msger.main.persistence.dao.TopicUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +39,16 @@ public class NettyConfig {
     @Autowired
     private TopicUserMapper topicUserMapper;
 
+    @Autowired
+    private RedisFragMsgService redisFragMsgService;
+
     @Value("#{${system.msger.protocol}}")
     Map<String, Integer> protocolMap;
 
     @Bean
     @ConditionalOnExpression("${system.udp.enable:true}")
     public UDPServer udpServer() {
-        UDPServer server = new UDPServer(udpPort, handlerMapper(), sessionMinutes);
+        UDPServer server = new UDPServer(udpPort, handlerMapper(),redisFragMsgService, sessionMinutes);
         server.startServer();
         return server;
     }
@@ -52,7 +56,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.tcp.enable:false}")
     public TCPServer tcpServer() {
-        TCPServer server = new TCPServer(tcpPort, handlerMapper(), sessionMinutes);
+        TCPServer server = new TCPServer(tcpPort, handlerMapper(), redisFragMsgService, sessionMinutes);
         server.startServer();
         return server;
     }
@@ -60,7 +64,7 @@ public class NettyConfig {
     @Bean
     @ConditionalOnExpression("${system.websocket.enable:false}")
     public WebsocketServer websocketServer() {
-        WebsocketServer server = new WebsocketServer(websocketPort, handlerMapper(), sessionMinutes);
+        WebsocketServer server = new WebsocketServer(websocketPort, handlerMapper(), redisFragMsgService, sessionMinutes);
         server.startServer();
         return server;
     }
@@ -81,5 +85,4 @@ public class NettyConfig {
     public HandlerMapper handlerMapper() {
         return new SpringHandlerMapper("com.ant.msger.main.web.endpoint");
     }
-
 }

@@ -2,6 +2,7 @@ package com.ant.msger.main.framework;
 
 import com.ant.msger.main.framework.handler.UDPServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.web.jt808.codec.JT808MessageUdpDecoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import io.netty.bootstrap.Bootstrap;
@@ -29,11 +30,13 @@ public class UDPServer {
     private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService redisFragMsgService;
 
-    public UDPServer(int port, HandlerMapper handlerMapper, int sessionMinutes) {
+    public UDPServer(int port, HandlerMapper handlerMapper, RedisFragMsgService redisFragMsgService, int sessionMinutes) {
         this.port = port;
         this.handlerMapper = handlerMapper;
         this.sessionMinutes = sessionMinutes;
+        this.redisFragMsgService = redisFragMsgService;
     }
 
     private void bind() throws Exception {
@@ -61,7 +64,7 @@ public class UDPServer {
                             @Override
                             protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
                             }
-                        }, handlerMapper));
+                        }, handlerMapper, redisFragMsgService));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new UDPServerHandler(handlerMapper, sessionMinutes));
 

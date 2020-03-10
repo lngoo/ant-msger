@@ -3,6 +3,7 @@ package com.ant.msger.main.framework;
 import com.ant.msger.main.framework.handler.WebSocketPrefixHandler;
 import com.ant.msger.main.framework.handler.WebsocketServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import com.ant.msger.main.web.jt808.codec.JT808MessageWebsocketDecoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -34,14 +35,13 @@ public class WebsocketServer {
     private int sessionMinutes;
 
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService redisFragMsgService;
 
-    public WebsocketServer() {
-    }
-
-    public WebsocketServer(int port, HandlerMapper handlerMapper, int sessionMinutes) {
+    public WebsocketServer(int port, HandlerMapper handlerMapper, RedisFragMsgService redisFragMsgService, int sessionMinutes) {
         this.port = port;
         this.handlerMapper = handlerMapper;
         this.sessionMinutes = sessionMinutes;
+        this.redisFragMsgService = redisFragMsgService;
     }
 
     private void bind() throws Exception {
@@ -62,7 +62,7 @@ public class WebsocketServer {
                         //用于大数据的分区传输
                         ch.pipeline().addLast(new ChunkedWriteHandler());
                         ch.pipeline().addLast(new WebSocketPrefixHandler());
-                        ch.pipeline().addLast(new JT808MessageWebsocketDecoder(handlerMapper));
+                        ch.pipeline().addLast(new JT808MessageWebsocketDecoder(handlerMapper, redisFragMsgService));
                         ch.pipeline().addLast(new JT808MessageEncoder());
                         ch.pipeline().addLast(new WebsocketServerHandler(handlerMapper, sessionMinutes));
                     }

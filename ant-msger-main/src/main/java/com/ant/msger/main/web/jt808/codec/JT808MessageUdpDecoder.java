@@ -3,10 +3,9 @@ package com.ant.msger.main.web.jt808.codec;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.bean.DecodeResult;
-import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.DatagramPacketDecoder;
@@ -22,6 +21,7 @@ import java.util.List;
 public class JT808MessageUdpDecoder extends DatagramPacketDecoder {
 
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService fragMsgService;
 
     private JT808MessageBaseDecoder baseDecoder = new JT808MessageBaseDecoder();
 
@@ -29,9 +29,10 @@ public class JT808MessageUdpDecoder extends DatagramPacketDecoder {
         super(decoder);
     }
 
-    public JT808MessageUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper) {
+    public JT808MessageUdpDecoder(MessageToMessageDecoder<ByteBuf> decoder, HandlerMapper handlerMapper, RedisFragMsgService fragMsgService) {
         super(decoder);
         this.handlerMapper = handlerMapper;
+        this.fragMsgService = fragMsgService;
     }
 
     @Override
@@ -39,7 +40,8 @@ public class JT808MessageUdpDecoder extends DatagramPacketDecoder {
         ByteBuf in = msg.content();
 
         // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(in, handlerMapper);
+        String clientSign = "udp_" + ctx.channel().remoteAddress().toString();
+        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(clientSign, in, handlerMapper, fragMsgService);
         if (null == message) {
             return;
         }

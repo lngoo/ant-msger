@@ -8,6 +8,7 @@ import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.transform.JsonUtils;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.codec.MsgSplitterEncoder;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.web.Application;
 import com.ant.msger.main.web.jt808.codec.JT808MessageBaseDecoder;
 import com.thoughtworks.xstream.XStream;
@@ -15,6 +16,7 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -40,6 +43,8 @@ public class CoderTest {
     @Autowired
     private HandlerMapper handlerMapper;
 
+    @Autowired
+    private RedisFragMsgService fragMsgService;
 
     private static final JT808MessageBaseDecoder decoder = new JT808MessageBaseDecoder();
 
@@ -55,7 +60,9 @@ public class CoderTest {
     public <T extends AbstractBody> AbstractMessage<T> transform(Class<T> clazz, String hex) {
         ByteBuf buf = Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(hex));
 //        AbstractMessage<T> bean = decoder.decode(buf, Message.class, clazz);
-        AbstractMessage<T> bean = (AbstractMessage<T>) decoder.hexStringToBean(buf, handlerMapper);
+        String clientSign = "test";
+
+        AbstractMessage<T> bean = (AbstractMessage<T>) decoder.hexStringToBean(clientSign, buf, handlerMapper, fragMsgService);
         return bean;
     }
 
@@ -89,25 +96,30 @@ public class CoderTest {
 
     public void selfCheck(AbstractMessage bean1) {
         List<String> list = transformWithSplit(bean1);
+        System.out.println("############  hex 1 ###############");
         for (String hex1 : list) {
             hex1 = "7e".concat(hex1).concat("7e");
             System.out.println(hex1);
-        }
+            AbstractMessage bean2 = transform(bean1.getBody().getClass(), hex1);
+            if (bean2 != null) {
+                String json1 = JsonUtils.toJson(bean1);
+                String json2 = JsonUtils.toJson(bean2);
+                System.out.println("########### JSON ################");
+                System.out.println(json1);
+                System.out.println(json2);
+                assertEquals("object not equals", json1, json2);
 
-//        AbstractMessage bean2 = transform(bean1.getBody().getClass(), hex1);
-//        String hex2 = transform(bean2);
-//        hex2 = "7e".concat(hex2).concat("7e");
-//        System.out.println(hex2);
-//
-//        String json1 = JsonUtils.toJson(bean1);
-//        String json2 = JsonUtils.toJson(bean2);
-//
-//        System.out.println(json1);
-//        System.out.println(json2);
-//        System.out.println();
-//
-//        assertEquals("hex not equals", hex1, hex2);
-//        assertEquals("object not equals", json1, json2);
+                System.out.println("############  hex 2 ###############");
+                List<String> list2 = transformWithSplit(bean2);
+                for (int i =0;i<list2.size();i++) {
+                    String hex2 = list2.get(i);
+                    System.out.println(hex2);
+                    assertEquals("hex not equals", list.get(i), hex2);
+                }
+                return;
+            }
+        }
+        assertEquals("没有正常拆分字符串", 1, 2);
     }
 
     public Message newMessage(AbstractBody body) {

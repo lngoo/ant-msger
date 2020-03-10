@@ -4,6 +4,7 @@ import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -17,19 +18,22 @@ import java.util.List;
  */
 public class JT808MessageTcpDecoder extends ByteToMessageDecoder {
     private HandlerMapper handlerMapper;
+    private RedisFragMsgService fragMsgService;
     private JT808MessageBaseDecoder baseDecoder = new JT808MessageBaseDecoder();
 
     public JT808MessageTcpDecoder() {
     }
 
-    public JT808MessageTcpDecoder(HandlerMapper handlerMapper) {
+    public JT808MessageTcpDecoder(HandlerMapper handlerMapper, RedisFragMsgService fragMsgService) {
         this.handlerMapper = handlerMapper;
+        this.fragMsgService = fragMsgService;
     }
 
 @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> out) throws Exception {
         // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(in, handlerMapper);
+        String clientSign = channelHandlerContext.channel().id().asLongText();
+        AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(clientSign, in, handlerMapper, fragMsgService);
         if (null == message) {
             return;
         }

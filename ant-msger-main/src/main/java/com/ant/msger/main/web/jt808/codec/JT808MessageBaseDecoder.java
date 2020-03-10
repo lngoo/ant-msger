@@ -1,6 +1,7 @@
 package com.ant.msger.main.web.jt808.codec;
 
 import com.ant.msger.base.annotation.Property;
+import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.enums.DataType;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
@@ -11,10 +12,8 @@ import com.ant.msger.main.framework.commons.transform.Bcd;
 import com.ant.msger.main.framework.commons.transform.ByteBufUtils;
 import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.UnpooledByteBufAllocator;
+import com.ant.msger.main.framework.redis.RedisFragMsgService;
+import io.netty.buffer.*;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
@@ -22,15 +21,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static com.ant.msger.base.enums.DataType.*;
 
 public class JT808MessageBaseDecoder {
 
-    public AbstractMessage<? extends AbstractBody> hexStringToBean(ByteBuf in, HandlerMapper handlerMapper){
+    public AbstractMessage<? extends AbstractBody> hexStringToBean(String clientSign, ByteBuf in, HandlerMapper handlerMapper, RedisFragMsgService fragMsgService) {
         // 获取标识符
         Integer delimiter = getOriInfoDelimiter(in);
         if (null == delimiter) {
@@ -55,10 +52,97 @@ public class JT808MessageBaseDecoder {
             return null;
         }
 
-        // 将输入转换为bean
-        AbstractMessage<? extends AbstractBody> message = decodeIn2Message(in, handler);
-        message.setDelimiter(delimiter);
+        // 反转义及校验位检查
+        in = unEscape(in);
+        if (check(in)) {
+            System.out.println("校验码错误" + ByteBufUtil.hexDump(in));
+            return null;
+        }
+
+        // 尝试解码消息
+        AbstractMessage<? extends AbstractBody> message = tryDecodeMessage(in, delimiter, handler, clientSign, fragMsgService);
         return message;
+    }
+
+    private AbstractMessage<? extends AbstractBody> tryDecodeMessage(ByteBuf in, Integer delimiter, Handler handler, String clientSign, RedisFragMsgService fragMsgService) {
+        // 将输入转换为bean
+        Message<? extends AbstractBody> message = decode(in, Message.class);
+//        ByteBuf bodyByteBuf = readBodyBuf(in, message);
+        ByteBuf bodyByteBuf = readBodyBuf(in, message);
+        // 处理分包,分包时，拼接body
+        if (message.isSubPackage()) {
+            int totalFrag = message.getSubPackageTotal();
+            int subPackageNumber = message.getSubPackageNumber();
+            int serialNumber = message.getSerialNumber();
+            Set existFragNums = fragMsgService.readMsgRedisFragNums(clientSign, serialNumber);
+            // 分块全部齐了，拼装分块
+            if (isFragEnough(existFragNums, subPackageNumber, totalFrag)) {
+                // 获取redis中的缓存数据
+                Map<Object, Object> map = fragMsgService.readMsgs(clientSign, serialNumber);
+                // 分包拼装
+                bodyByteBuf = combineFrags(bodyByteBuf.array(), subPackageNumber, map);
+            } else {
+                // 分块不齐，存redis后直接返回。保存body对应的bytes
+                fragMsgService.saveMsgFrag(clientSign, serialNumber, subPackageNumber, bodyByteBuf.array());
+                return null;
+            }
+        }
+
+        // 转换body
+        decodeBody(message, bodyByteBuf, handler);
+//        AbstractMessage<? extends AbstractBody> message = decodeIn2Message(in, handler);
+        message.setDelimiter(delimiter);
+        bodyByteBuf.clear();
+        in.clear();
+        return message;
+    }
+
+    /**
+     * 分块是否凑齐了
+     *
+     * @param set
+     * @param subPackageNumber
+     * @param totalFrag
+     * @return
+     */
+    private boolean isFragEnough(Set set, int subPackageNumber, int totalFrag) {
+        set.add(subPackageNumber + "");
+        return set.size() == totalFrag;
+    }
+
+    /*
+     * 分包拼装
+     */
+    private ByteBuf combineFrags(byte[] array, int subPackageNumber, Map<Object, Object> map) {
+        ByteBuf buf = Unpooled.buffer();
+        map.put(subPackageNumber + "", array);
+        for (int i = 0; i < map.size(); i++) {
+            buf.writeBytes((byte[]) map.get(String.valueOf(i + 1)));
+        }
+        return buf.capacity(buf.readableBytes());
+    }
+
+    private <T extends AbstractBody> void decodeBody(Message<T> message, ByteBuf bodyByteBuf, Handler handler) {
+        Type[] types = handler.getTargetParameterTypes();
+        if (types[0] instanceof ParameterizedTypeImpl) {
+            ParameterizedTypeImpl clazz = (ParameterizedTypeImpl) types[0];
+
+            Class<T> bodyClass = (Class<T>) clazz.getActualTypeArguments()[0];
+
+            T body = decode(bodyByteBuf, bodyClass);
+            message.setBody(body);
+        }
+    }
+
+    private ByteBuf readBodyBuf(ByteBuf in, Message<? extends AbstractBody> message) {
+        Integer headerLength = message.getHeaderLength();
+//        in.setIndex(headerLength, headerLength + message.getBodyLength());
+//        ByteBuf byteBuf = Unpooled.buffer();
+//        byteBuf.writeBytes();
+//        byte[] bs = new byte[message.getBodyLength()];
+        ByteBuf result = Unpooled.buffer(message.getBodyLength());
+        result.writeBytes(in, headerLength, message.getBodyLength());
+        return result;
     }
 
     private Integer getOriInfoDelimiter(ByteBuf in) {
@@ -73,6 +157,7 @@ public class JT808MessageBaseDecoder {
 
     /**
      * 获取消息ID
+     *
      * @param source
      * @return
      */
@@ -98,7 +183,22 @@ public class JT808MessageBaseDecoder {
 //    }
 
     /**
+     * 只转换message体，不转换body
+     *
+     * @param in
+     * @param handler
+     * @return
+     */
+    public Message<? extends AbstractBody> decodeIn2MessageOnlyHeader(ByteBuf in, Handler handler) {
+        Message<? extends AbstractBody> decode = decode(in, Message.class);
+        ;
+        ;
+        return decode;
+    }
+
+    /**
      * 将正文转换成消息体bean
+     *
      * @param in
      * @param handler
      * @return
@@ -122,10 +222,10 @@ public class JT808MessageBaseDecoder {
      * 解析
      */
     private <T extends AbstractBody> AbstractMessage<T> decode(ByteBuf buf, Class<? extends AbstractMessage> clazz, Class<T> bodyClass) {
-        buf = unEscape(buf);
-
-        if (check(buf))
-            System.out.println("校验码错误" + ByteBufUtil.hexDump(buf));
+//        buf = unEscape(buf);
+//
+//        if (check(buf))
+//            System.out.println("校验码错误" + ByteBufUtil.hexDump(buf));
 
         AbstractMessage message = decode(buf, clazz);
         if (bodyClass != null) {
