@@ -40,7 +40,7 @@ public class JT808MessageUdpDecoder extends DatagramPacketDecoder {
         ByteBuf in = msg.content();
 
         // 将输入转换为bean
-        String clientSign = "udp_" + ctx.channel().remoteAddress().toString();
+        String clientSign = "udp_" + msg.sender().getHostName() + "_" + msg.sender().getPort();
         AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(clientSign, in, handlerMapper, fragMsgService);
         if (null == message) {
             return;

@@ -11,6 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+import org.springframework.util.StringUtils;
 
 import java.net.InetSocketAddress;
 
@@ -30,6 +31,11 @@ public class TCPServerHandler extends BaseHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        // 分段消息时的特殊处理
+        if (!(msg instanceof AbstractMessage)) {
+            return;
+        }
+
         try {
             AbstractMessage messageRequest = (AbstractMessage) msg;
             Channel channel = ctx.channel();

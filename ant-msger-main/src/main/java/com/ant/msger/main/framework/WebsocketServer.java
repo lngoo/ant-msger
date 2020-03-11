@@ -16,6 +16,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
@@ -63,7 +64,8 @@ public class WebsocketServer {
                         ch.pipeline().addLast(new ChunkedWriteHandler());
                         ch.pipeline().addLast(new WebSocketPrefixHandler());
                         ch.pipeline().addLast(new JT808MessageWebsocketDecoder(handlerMapper, redisFragMsgService));
-                        ch.pipeline().addLast(new JT808MessageEncoder());
+//                        ch.pipeline().addLast(new JT808MessageEncoder());
+                        ch.pipeline().addLast(new StringEncoder());
                         ch.pipeline().addLast(new WebsocketServerHandler(handlerMapper, sessionMinutes));
                     }
                 });

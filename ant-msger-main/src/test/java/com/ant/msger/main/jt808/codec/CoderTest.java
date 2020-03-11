@@ -98,7 +98,6 @@ public class CoderTest {
         List<String> list = transformWithSplit(bean1);
         System.out.println("############  hex 1 ###############");
         for (String hex1 : list) {
-            hex1 = "7e".concat(hex1).concat("7e");
             System.out.println(hex1);
             AbstractMessage bean2 = transform(bean1.getBody().getClass(), hex1);
             if (bean2 != null) {
@@ -182,23 +181,23 @@ public class CoderTest {
 
 
     // 终端注册 0x0100
-    @Test
-    public void testRegister() {
-//        selfCheck(PositionReport.class, "0100002e064762924824000200000000484f4f5000bfb5b4ef562d31000000000000000000000000000000015a0d5dff02bba64450393939370002");
-        selfCheck(register());
-    }
-
-    public Message register() {
-        Register bean = new Register();
-        bean.setProvinceId(44);
-        bean.setCityId(307);
-        bean.setManufacturerId("测试");
-        bean.setTerminalType("TEST");
-        bean.setTerminalId("粤B8888");
-        bean.setLicensePlateColor(0);
-        bean.setLicensePlate("粤B8888");
-        return newMessage(bean);
-    }
+//    @Test
+//    public void testRegister() {
+////        selfCheck(PositionReport.class, "0100002e064762924824000200000000484f4f5000bfb5b4ef562d31000000000000000000000000000000015a0d5dff02bba64450393939370002");
+//        selfCheck(register());
+//    }
+//
+//    public Message register() {
+//        Register bean = new Register();
+//        bean.setProvinceId(44);
+//        bean.setCityId(307);
+//        bean.setManufacturerId("测试");
+//        bean.setTerminalType("TEST");
+//        bean.setTerminalId("粤B8888");
+//        bean.setLicensePlateColor(0);
+//        bean.setLicensePlate("粤B8888");
+//        return newMessage(bean);
+//    }
 
 
     // 提问下发 0x8302
@@ -317,8 +316,8 @@ public class CoderTest {
 
         Message<Register> msg = new Message<>();
         msg.setType(0X0100);
-//        msg.setMobileNumber("12345678913888888888");
-        msg.setMobileNumber("12345678913888889999");
+        msg.setMobileNumber("12345678913888888888");
+//        msg.setMobileNumber("12345678913888889999");
         msg.setSerialNumber(102);
         msg.setBody(res);
         return msg;

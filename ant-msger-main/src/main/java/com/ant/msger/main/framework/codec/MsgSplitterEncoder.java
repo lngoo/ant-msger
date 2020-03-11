@@ -4,6 +4,7 @@ import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
 import com.ant.msger.main.framework.commons.constant.Constants;
+import com.ant.msger.main.framework.commons.transform.HexUtil;
 import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -29,7 +30,8 @@ public class MsgSplitterEncoder<T extends AbstractBody> extends JT808MessageEnco
             ByteBuf buf = Unpooled.wrappedBuffer(headerBuf, bodyBuf);
             buf = sign(buf);
             buf = escape(buf);
-            list.add(ByteBufUtil.hexDump(buf));
+            String delimiterStr = HexUtil.intTohex(message.getDelimiter());
+            list.add(delimiterStr + ByteBufUtil.hexDump(buf) + delimiterStr);
         }
         return list;
     }

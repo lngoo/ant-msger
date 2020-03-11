@@ -31,7 +31,7 @@ public class HexUtil {
     public static String intTohex(int n) {
         StringBuffer s = new StringBuffer();
         String a;
-        char[] b = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        char[] b = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
         while (n != 0) {
             s = s.append(b[n % 16]);
             n = n / 16;

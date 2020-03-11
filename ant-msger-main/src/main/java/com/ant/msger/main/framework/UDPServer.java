@@ -4,13 +4,13 @@ import com.ant.msger.main.framework.handler.UDPServerHandler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.web.jt808.codec.JT808MessageUdpDecoder;
-import com.ant.msger.main.web.jt808.codec.JT808MessageEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
@@ -65,7 +65,8 @@ public class UDPServer {
                             protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
                             }
                         }, handlerMapper, redisFragMsgService));
-                        ch.pipeline().addLast(new JT808MessageEncoder());
+//                        ch.pipeline().addLast(new JT808MessageEncoder());
+                        ch.pipeline().addLast(new StringEncoder());
                         ch.pipeline().addLast(new UDPServerHandler(handlerMapper, sessionMinutes));
 
                     }

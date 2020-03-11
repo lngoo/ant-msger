@@ -2,7 +2,6 @@ package com.ant.msger.main.web.jt808.codec;
 
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
-import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import io.netty.buffer.ByteBuf;
@@ -29,16 +28,19 @@ public class JT808MessageTcpDecoder extends ByteToMessageDecoder {
         this.fragMsgService = fragMsgService;
     }
 
-@Override
+    @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> out) throws Exception {
         // 将输入转换为bean
         String clientSign = channelHandlerContext.channel().id().asLongText();
+//    System.out.println("%#######" + HexUtil.bytesToHexString(Unpooled.buffer(in.readableBytes()).writeBytes(in).array()));
         AbstractMessage<? extends AbstractBody> message = baseDecoder.hexStringToBean(clientSign, in, handlerMapper, fragMsgService);
-        if (null == message) {
-            return;
-        }
-        out.add(message);
 
+        if (null == message) {
+            // 为了让TCP感知到已经读到消息，特此处理
+            out.add("NULL");
+        } else {
+            out.add(message);
+        }
         in.skipBytes(in.readableBytes());
     }
 }

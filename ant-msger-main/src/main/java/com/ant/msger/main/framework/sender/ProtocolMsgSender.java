@@ -1,18 +1,28 @@
 package com.ant.msger.main.framework.sender;
 
 import com.ant.msger.base.dto.jt808.basics.Message;
+import com.ant.msger.main.framework.codec.MsgSplitterEncoder;
+import com.ant.msger.main.framework.commons.transform.HexUtil;
 import com.ant.msger.main.framework.session.Session;
-import com.ant.msger.main.web.jt808.codec.JT808MessageEncodeHelper;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
+import java.nio.charset.Charset;
+import java.util.List;
+
 public class ProtocolMsgSender {
+
+    private static final MsgSplitterEncoder encoder = new MsgSplitterEncoder();
 
     public void sendTcpMsgSingle(Session session, Message message) {
         try {
             Channel channel = session.getChannel();
-            channel.writeAndFlush(message).sync();
+            List<String> msgs = encoder.splitAndEncode(message);
+            for (String msg : msgs) {
+                channel.writeAndFlush(Unpooled.wrappedBuffer(HexUtil.hexString2Bytes(msg))).sync();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -22,7 +32,10 @@ public class ProtocolMsgSender {
         try {
             Channel channel = session.getChannel();
             channel.connect(session.getSocketAddress());
-            ChannelFuture future = channel.writeAndFlush(message).sync();
+            List<String> msgs = encoder.splitAndEncode(message);
+            for (String msg : msgs) {
+                channel.writeAndFlush(Unpooled.wrappedBuffer(HexUtil.hexString2Bytes(msg))).sync();
+            }
             channel.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -32,8 +45,12 @@ public class ProtocolMsgSender {
     public void sendWebsocketMsgSingle(Session session, Message message) {
         try {
             Channel channel = session.getChannel();
-            TextWebSocketFrame tws = new TextWebSocketFrame(JT808MessageEncodeHelper.formatWebsocketMessage(message));
-            channel.writeAndFlush(tws).sync();
+            List<String> msgs = encoder.splitAndEncode(message);
+            for (String msg : msgs) {
+                TextWebSocketFrame tws = new TextWebSocketFrame(msg);
+//                channel.writeAndFlush(msg).sync();
+                channel.writeAndFlush(tws).sync();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

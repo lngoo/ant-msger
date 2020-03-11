@@ -14,6 +14,8 @@ import com.ant.msger.main.framework.mapping.Handler;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import io.netty.buffer.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
@@ -26,6 +28,8 @@ import java.util.*;
 import static com.ant.msger.base.enums.DataType.*;
 
 public class JT808MessageBaseDecoder {
+
+    private static final Logger LOG = LoggerFactory.getLogger("messageBaseDecoder");
 
     public AbstractMessage<? extends AbstractBody> hexStringToBean(String clientSign, ByteBuf in, HandlerMapper handlerMapper, RedisFragMsgService fragMsgService) {
         // 获取标识符
@@ -82,8 +86,11 @@ public class JT808MessageBaseDecoder {
                 // 分包拼装
                 bodyByteBuf = combineFrags(bodyByteBuf.array(), subPackageNumber, map);
             } else {
+                LOG.info("### save frag to redis.. {}", bodyByteBuf.array());
                 // 分块不齐，存redis后直接返回。保存body对应的bytes
                 fragMsgService.saveMsgFrag(clientSign, serialNumber, subPackageNumber, bodyByteBuf.array());
+                bodyByteBuf.skipBytes(bodyByteBuf.readableBytes());
+                in.skipBytes(in.readableBytes());
                 return null;
             }
         }
@@ -92,8 +99,8 @@ public class JT808MessageBaseDecoder {
         decodeBody(message, bodyByteBuf, handler);
 //        AbstractMessage<? extends AbstractBody> message = decodeIn2Message(in, handler);
         message.setDelimiter(delimiter);
-        bodyByteBuf.clear();
-        in.clear();
+        bodyByteBuf.skipBytes(bodyByteBuf.readableBytes());
+        in.skipBytes(in.readableBytes());
         return message;
     }
 

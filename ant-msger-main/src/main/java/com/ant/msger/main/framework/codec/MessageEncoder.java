@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
+ * 特别注意：本类已退化成普通类，不再有encoder相关属性
  * 基础消息编码
  */
 public abstract class MessageEncoder<T extends AbstractBody> extends MessageToByteEncoder<AbstractMessage<T>> {
