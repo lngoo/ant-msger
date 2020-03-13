@@ -6,6 +6,7 @@ import com.ant.msger.main.framework.commons.constant.GlobalConfig;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.redis.RedisFragMsgService;
 import com.ant.msger.main.framework.session.TopicManager;
+import com.ant.msger.main.persistence.dao.TopicMapper;
 import com.ant.msger.main.persistence.dao.TopicUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,9 @@ public class NettyConfig {
 
     @Autowired
     private TopicUserMapper topicUserMapper;
+
+    @Autowired
+    private TopicMapper topicMapper;
 
     @Autowired
     private RedisFragMsgService redisFragMsgService;
@@ -75,7 +79,7 @@ public class NettyConfig {
     @Bean(name="globalConfig")
     public GlobalConfig globalConfig() {
         // 初始化topicuser缓存数据
-        TopicManager.getInstance().loadDBDatas(topicUserMapper);
+        TopicManager.getInstance().loadDBDatas(topicMapper, topicUserMapper);
         // 缓存业务协议配置表
         return new GlobalConfig(protocolMap);
     }

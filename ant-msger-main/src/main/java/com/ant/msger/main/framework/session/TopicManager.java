@@ -1,7 +1,10 @@
 package com.ant.msger.main.framework.session;
 
 import com.ant.msger.base.enums.OperateType;
+import com.ant.msger.main.framework.commons.constant.Constants;
+import com.ant.msger.main.persistence.dao.TopicMapper;
 import com.ant.msger.main.persistence.dao.TopicUserMapper;
+import com.ant.msger.main.persistence.entity.Topic;
 import com.ant.msger.main.persistence.entity.TopicUser;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +19,8 @@ public class TopicManager {
     private static volatile TopicManager instance = null;
 
     /* topicId, 用户集合*/
-    private Map<String, Set<TopicUser>> map;
+    private Map<String, Set<TopicUser>> mapTopicUser;
+    private Map<String, Topic> mapTopic;
 
     public static TopicManager getInstance() {
         if (instance == null) {
@@ -30,45 +34,54 @@ public class TopicManager {
     }
 
     public TopicManager() {
-        this.map = new ConcurrentHashMap<>();
+        this.mapTopic = new ConcurrentHashMap<>();
+        this.mapTopicUser = new ConcurrentHashMap<>();
     }
-
 
     public Set<TopicUser> getByTopicId(String topicId) {
         if (StringUtils.isEmpty(topicId)) {
             return null;
         }
 
-        Set<TopicUser> set = map.get(topicId);
-        // 去除掉过期的
-        Date now = new Date();
-        set.removeIf(topicUser -> {
-            if (null != topicUser.getExpireTime() && topicUser.getExpireTime().before(now)) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-        return set;
+        Topic topic = mapTopic.get(topicId);
+        // topic是否过期
+        if (topic.getTimeType() == Constants.TopicType.TEMPORARY
+            && topic.getExpireTime().before(new Date())) {
+            return new HashSet<>();
+        }
+
+        return mapTopicUser.get(topicId);
     }
 
-    public boolean loadDBDatas(TopicUserMapper mapper) {
+    public boolean loadDBDatas(TopicMapper topicMapper, TopicUserMapper mapper) {
         try {
+            List<Topic> listTopic = topicMapper.loadAllEffective();
+            if (null == listTopic || listTopic.isEmpty()) {
+                return true;
+            }
+
             List<TopicUser> list = mapper.loadAllEffective();
             if (null == list || list.isEmpty()) {
                 return true;
             }
-            synchronized (TopicManager.class) {
 
-                map.clear();
-                for (TopicUser temp : list) {
-                    String topicId = temp.getTopicId();
-                    Set<TopicUser> set = map.get(topicId);
+            synchronized (TopicManager.class) {
+                mapTopic.clear();
+                mapTopicUser.clear();
+
+                for (Topic topic : listTopic) {
+                    mapTopic.put(topic.getTopicId(), topic);
+                    mapTopicUser.put(topic.getTopicId(), new CopyOnWriteArraySet<>());
+                }
+
+                for (TopicUser topicUser : list) {
+                    String topicId = topicUser.getTopicId();
+                    Set<TopicUser> set = mapTopicUser.get(topicId);
                     if (null == set) {
                         set = new CopyOnWriteArraySet<>();
-                        map.put(topicId, set);
+                        mapTopicUser.put(topicId, set);
                     }
-                    set.add(temp);
+                    set.add(topicUser);
                 }
             }
         } catch (Exception e) {
@@ -77,21 +90,27 @@ public class TopicManager {
         return true;
     }
 
-    public boolean updateCacheDatas(OperateType operateType, List<TopicUser> list) {
+    public boolean updateCacheDatas(OperateType operateType, Topic topic, List<TopicUser> list) {
         if (null == list || list.isEmpty()) {
             return true;
         }
         synchronized (TopicManager.class) {
             try {
                 switch (operateType) {
-                    case ADD:
-                        update4Insert(list);
+                    case TOPIC_REGISTER:
+                        update4TopicRegister(topic, list);
                         break;
-                    case UPDATE:
-                        update4Update(list);
+                    case TOPIC_RELEASE:
+                        update4TopicRelease(topic.getTopicId());
                         break;
-                    case DELETE:
-                        update4Delete(list);
+                    case TOPIC_UPDATE_TYPE:
+                        update4TopicUpdateType(topic);
+                        break;
+                    case TOPIC_ADDUSER:
+                        update4TopicAddUser(list);
+                        break;
+                    case TOPIC_REMOVEUSER:
+                        update4TopicRemoveUser(list);
                         break;
                 }
             } catch (Exception e) {
@@ -101,29 +120,34 @@ public class TopicManager {
         return true;
     }
 
-    private void update4Delete(List<TopicUser> list) {
+    private void update4TopicAddUser(List<TopicUser> list) {
         for (TopicUser temp : list) {
-            String topicId = temp.getTopicId();
-            String userId = temp.getUserId();
-            if (StringUtils.isEmpty(userId)) {
-                map.remove(topicId);
-            } else {
-                Set<TopicUser> set = map.get(topicId);
-                set.removeIf(topicUser -> {
-                    if (StringUtils.equals(topicId, topicUser.getTopicId())
-                            && StringUtils.equals(temp.getUserId(), topicUser.getUserId())) {
-                        return true;
-                    }
-                    return false;
-                });
+            Set<TopicUser> set = mapTopicUser.get(temp.getTopicId());
+            if (null == set) {
+                set = new CopyOnWriteArraySet<>();
+                mapTopicUser.put(temp.getTopicId(), set);
             }
+            set.add(temp);
         }
     }
 
-    private void update4Update(List<TopicUser> list) {
+    private void update4TopicUpdateType(Topic topic) {
+        Topic topicCache = mapTopic.get(topic.getTopicId());
+        topicCache.setTimeType(topic.getTimeType());
+        topicCache.setExpireTime(topic.getExpireTime());
+        topicCache.setTopicName(topic.getTopicName());
+    }
+
+    private void update4TopicRelease(String topicId) {
+        mapTopic.remove(topicId);
+        mapTopicUser.get(topicId).clear();
+        mapTopicUser.remove(topicId);
+    }
+
+    private void update4TopicRemoveUser(List<TopicUser> list) {
         for (TopicUser temp : list) {
             String topicId = temp.getTopicId();
-            Set<TopicUser> set = map.get(topicId);
+            Set<TopicUser> set = mapTopicUser.get(topicId);
             set.removeIf(topicUser -> {
                 if (StringUtils.equals(topicId, topicUser.getTopicId())
                         && StringUtils.equals(temp.getUserId(), topicUser.getUserId())) {
@@ -131,18 +155,23 @@ public class TopicManager {
                 }
                 return false;
             });
-            set.add(temp);
+
+            if (mapTopicUser.get(topicId).isEmpty()) {
+                mapTopicUser.remove(topicId);
+                mapTopic.remove(topicId);
+            }
         }
     }
 
-    private void update4Insert(List<TopicUser> list) {
+    private void update4TopicRegister(Topic topic, List<TopicUser> list) {
+        mapTopic.put(topic.getTopicId(), topic);
+
         for (TopicUser temp : list) {
-            Set<TopicUser> set = map.get(temp.getTopicId());
+            Set<TopicUser> set = mapTopicUser.get(temp.getTopicId());
             if (null == set) {
                 set = new CopyOnWriteArraySet<>();
-                map.put(temp.getTopicId(), set);
+                mapTopicUser.put(temp.getTopicId(), set);
             }
-
             set.add(temp);
         }
     }

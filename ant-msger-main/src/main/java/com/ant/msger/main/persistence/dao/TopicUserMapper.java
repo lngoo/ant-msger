@@ -17,11 +17,11 @@ public interface TopicUserMapper {
 
     int updateByPrimaryKey(TopicUser record);
 
-    void insertBatch(List<TopicUser> listDBBean) throws Exception;
+    void insertBatch(List<TopicUser> list);
 
-    void updateBatch(List<TopicUser> listDBBean) throws Exception;
+    void deleteByTopicId(String topicId);
 
-    void deleteBatch(List<TopicUser> listDBBean) throws Exception;
+    void deleteTopicUserBatch(List<TopicUser> list);
 
-    List<TopicUser> loadAllEffective()throws Exception;
+    List<TopicUser> loadAllEffective();
 }

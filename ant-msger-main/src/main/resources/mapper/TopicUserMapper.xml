@@ -5,10 +5,9 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="topic_id" jdbcType="VARCHAR" property="topicId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, topic_id, user_id, expire_time
+    id, topic_id, user_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -16,23 +15,15 @@
     from topic_user
     where id = #{id,jdbcType=INTEGER}
   </select>
-
-  <select id="loadAllEffective" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from topic_user
-    where expire_time is null or expire_time > now()
-  </select>
-
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from topic_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
-    insert into topic_user (id, topic_id, user_id, 
-      expire_time)
-    values (#{id,jdbcType=INTEGER}, #{topicId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
-      #{expireTime,jdbcType=TIMESTAMP})
+    insert into topic_user (id, topic_id, user_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{topicId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
     insert into topic_user
@@ -46,9 +37,6 @@
       <if test="userId != null">
         user_id,
       </if>
-      <if test="expireTime != null">
-        expire_time,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -59,9 +47,6 @@
       </if>
       <if test="userId != null">
         #{userId,jdbcType=VARCHAR},
-      </if>
-      <if test="expireTime != null">
-        #{expireTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -74,51 +59,46 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=VARCHAR},
       </if>
-      <if test="expireTime != null">
-        expire_time = #{expireTime,jdbcType=TIMESTAMP},
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
     update topic_user
     set topic_id = #{topicId,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=VARCHAR},
-      expire_time = #{expireTime,jdbcType=TIMESTAMP}
+      user_id = #{userId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!--  自定义 -->
   <insert id="insertBatch" parameterType="java.util.List">
-    insert into topic_user (topic_id,user_id,expire_time)
+    insert into topic_user (topic_id,user_id)
     values
     <foreach collection="list" index="index" item="item" separator=",">
       (#{item.topicId,jdbcType=VARCHAR},
-      #{item.userId,jdbcType=VARCHAR},
-      #{item.expireTime,jdbcType=TIMESTAMP})
+      #{item.userId,jdbcType=VARCHAR}
+      )
     </foreach>
   </insert>
 
-  <update id="updateBatch" parameterType="java.util.List">
-    <foreach close="" collection="list" index="index" item="item" open="" separator=";">
-      UPDATE topic_user
-      <set>
-        expire_time=#{item.expireTime,jdbcType=TIMESTAMP}
-      </set>
-      <where>
-        user_id = #{item.userId,jdbcType=VARCHAR} and topic_id=#{item.topicId,jdbcType=VARCHAR}
-      </where>
-    </foreach>
-  </update>
+  <delete id="deleteByTopicId" parameterType="java.lang.String">
+    delete from topic_user
+    where topic_id = #{topicId,jdbcType=INTEGER}
+  </delete>
 
-  <delete id="deleteBatch" parameterType="java.util.List">
+  <delete id="deleteTopicUserBatch" parameterType="java.util.List">
     <foreach close="" collection="list" index="index" item="item" open="" separator=";">
       DELETE FROM  topic_user
       <where>
         topic_id=#{item.topicId,jdbcType=VARCHAR}
-        <if test="item.userId != null">
-          and user_id = #{item.userId,jdbcType=VARCHAR}
-        </if>
+        and user_id = #{item.userId,jdbcType=VARCHAR}
       </where>
     </foreach>
   </delete>
+
+  <select id="loadAllEffective" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+     from topic_user
+     where topic_id in (select topic_id from topic where time_type = 0 or expire_time > now())
+  </select>
 </mapper>

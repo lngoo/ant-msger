@@ -8,4 +8,9 @@ public class Constants {
     public final static int JT808_MSG_HEADER_LENGTH = 21;
     // 消息体 body 长度
     public final static int JT808_MSG_BODY_LENGTH = 30; // 1024
+
+    public class TopicType{
+        public final static int FOREVER = 0; // 永久
+        public final static int TEMPORARY = 1; // 临时
+    }
 }
