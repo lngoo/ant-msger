@@ -365,7 +365,7 @@ public class CoderTest {
         imMsg.setSendType(2);
         imMsg.setSendTo("12345678913888888888");
         imMsg.setSendUserAlias("12345678913888889999");
-        imMsg.setSendUserName("张老三");
+        imMsg.setSendTime("20200314120000");
 
         Message<IMMsg> msg = new Message<>();
         msg.setType(MessageId.IM消息);
@@ -385,7 +385,8 @@ public class CoderTest {
         imMsg.setSendType(1);
         imMsg.setSendTo("00398637937601941504");  // TODO 此处改改
         imMsg.setSendUserAlias("12345678913888889999");
-        imMsg.setSendUserName("张老三");
+        imMsg.setSendTime("20200314120000");
+        imMsg.setMsgId("a123456789b987654321");
 
         Message<IMMsg> msg = new Message<>();
         msg.setType(MessageId.IM消息);
