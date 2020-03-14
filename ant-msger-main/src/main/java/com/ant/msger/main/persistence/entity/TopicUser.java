@@ -7,6 +7,15 @@ public class TopicUser {
 
     private String userId;
 
+    public TopicUser() {
+    }
+
+    public TopicUser(Integer id, String topicId, String userId) {
+        this.id = id;
+        this.topicId = topicId;
+        this.userId = userId;
+    }
+
     public Integer getId() {
         return id;
     }

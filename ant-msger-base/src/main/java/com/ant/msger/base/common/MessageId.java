@@ -1,6 +1,8 @@
 package com.ant.msger.base.common;
 
 public interface MessageId {
+    /** 0.IM消息 */
+    int IM消息 = 0xeeee;
 
     /** 1.终端通用应答 */
     int 终端通用应答 = 0x0001;

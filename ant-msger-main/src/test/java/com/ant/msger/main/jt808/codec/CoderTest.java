@@ -5,6 +5,7 @@ import com.ant.msger.base.dto.jt808.*;
 import com.ant.msger.base.dto.jt808.basics.Message;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
+import com.ant.msger.main.framework.commons.constant.GlobalConfig;
 import com.ant.msger.main.framework.commons.transform.JsonUtils;
 import com.ant.msger.main.framework.mapping.HandlerMapper;
 import com.ant.msger.main.framework.codec.MsgSplitterEncoder;
@@ -354,5 +355,45 @@ public class CoderTest {
         selfCheck(msg);
 
         System.out.println(new XStream(new StaxDriver()).toXML(msg));
+    }
+
+    // IM 发送给用户
+    @Test
+    public void imSendToUser() {
+        IMMsg imMsg = new IMMsg();
+        imMsg.setMsg("你好啊！");
+        imMsg.setSendType(2);
+        imMsg.setSendTo("12345678913888888888");
+        imMsg.setSendUserAlias("12345678913888889999");
+        imMsg.setSendUserName("张老三");
+
+        Message<IMMsg> msg = new Message<>();
+        msg.setType(MessageId.IM消息);
+        msg.setDelimiter(0x7a);
+        msg.setMobileNumber("12345678913888889999");
+        msg.setSerialNumber(1);
+        msg.setBody(imMsg);
+
+        selfCheck(msg);
+    }
+
+    // IM 发送给用户
+    @Test
+    public void imSendToTopic() {
+        IMMsg imMsg = new IMMsg();
+        imMsg.setMsg("大家好！");
+        imMsg.setSendType(1);
+        imMsg.setSendTo("00398637937601941504");  // TODO 此处改改
+        imMsg.setSendUserAlias("12345678913888889999");
+        imMsg.setSendUserName("张老三");
+
+        Message<IMMsg> msg = new Message<>();
+        msg.setType(MessageId.IM消息);
+        msg.setDelimiter(0x7a);
+        msg.setMobileNumber("12345678913888889999");
+        msg.setSerialNumber(1);
+        msg.setBody(imMsg);
+
+        selfCheck(msg);
     }
 }

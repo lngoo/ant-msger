@@ -3,17 +3,12 @@ package com.ant.msger.main.mq.util;
 import com.ant.msger.base.dto.jt808.*;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.MessageExternal;
-import com.ant.msger.main.framework.commons.transform.JsonUtils;
 import com.antnest.msger.proto.ProtoMain;
 import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import com.google.protobuf.MessageOrBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.ant.msger.main.mq.util.ProtoBufUtil.*;
 
 /**
  * 本地化的转换类
@@ -21,23 +16,26 @@ import static com.ant.msger.main.mq.util.ProtoBufUtil.*;
 public class LocalProtoBufUtil {
 
     private static Map<String, Message.Builder> map = new HashMap<>();
+
+    // TODO 随时追加pb中body映射关系
     static {
         map.put(Register.class.getSimpleName(), ProtoMain.Register.newBuilder());
         map.put(CommonResult.class.getSimpleName(), ProtoMain.CommonResult.newBuilder());
         map.put(RegisterResult.class.getSimpleName(), ProtoMain.RegisterResult.newBuilder());
         map.put(Authentication.class.getSimpleName(), ProtoMain.Authentication.newBuilder());
         map.put(PositionReport.class.getSimpleName(), ProtoMain.PositionReport.newBuilder());
+        map.put(IMMsg.class.getSimpleName(), ProtoMain.IMMsg.newBuilder());
     }
 
     public static ProtoMain.Message copyMessageExternalToProtoBean(MessageExternal messageExternal, ProtoMain.Message.Builder target) {
         AbstractBody body = messageExternal.getMsgBody();
         messageExternal.setMsgBody(null);
-        ProtoMain.Message msgProto = copyJavaBeanToProtoBean(messageExternal, target);
+        ProtoMain.Message msgProto = ProtoBufUtil.copyJavaBeanToProtoBean(messageExternal, target);
 
         Class bodyClass = body.getClass();
         Message.Builder bodyBuilder = map.get(bodyClass.getSimpleName());
         bodyBuilder.clear();
-        Message bodyProto = copyJavaBeanToProtoBean(body, bodyBuilder);
+        Message bodyProto = ProtoBufUtil.copyJavaBeanToProtoBean(body, bodyBuilder);
 
         return msgProto.toBuilder().setMsgBody(Any.pack(bodyProto)).build();
     }
@@ -49,10 +47,10 @@ public class LocalProtoBufUtil {
         Message.Builder bodyBuilder = map.get(bodyClassName);
         Message bodyProto = bodyAny.unpack(bodyBuilder.build().getClass());
         Class bodyInternalClass = Class.forName("com.ant.msger.base.dto.jt808.".concat(bodyClassName));
-        AbstractBody body = (AbstractBody) copyProtoBeanToJavaBean(bodyProto, bodyInternalClass);
+        AbstractBody body = (AbstractBody) ProtoBufUtil.copyProtoBeanToJavaBean(bodyProto, bodyInternalClass);
 
         message = message.toBuilder().clearMsgBody().build();
-        MessageExternal external = copyProtoBeanToJavaBean(message, MessageExternal.class);
+        MessageExternal external = ProtoBufUtil.copyProtoBeanToJavaBean(message, MessageExternal.class);
         external.setMsgBody(body);
 
         return external;
