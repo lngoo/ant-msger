@@ -4,14 +4,17 @@ import com.ant.msger.base.annotation.Endpoint;
 import com.ant.msger.base.annotation.Mapping;
 import com.ant.msger.base.dto.jt808.*;
 import com.ant.msger.base.dto.jt808.basics.Message;
+import com.antnest.msger.converter.constant.GlobalConfig;
+import com.antnest.msger.converter.constant.ProtocolBusiness;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 import static com.ant.msger.base.common.MessageId.*;
 
-
+@Component
 @Endpoint
-public class JT808Endpoint {
+public class JT808Endpoint extends BaseEndpoint {
 
     @Mapping(types = 终端通用应答, desc = "终端通用应答")
     public void 终端通用应答(Message<CommonResult> message) {
@@ -127,5 +130,10 @@ public class JT808Endpoint {
 
     @Mapping(types = 数据压缩上报, desc = "数据压缩上报")
     public void gzipPack(Message<GZIPPack> message) {
+    }
+
+    @Override
+    public Integer getPointType() {
+        return GlobalConfig.protocolBusinessMap().get(ProtocolBusiness.Jt808.name());
     }
 }

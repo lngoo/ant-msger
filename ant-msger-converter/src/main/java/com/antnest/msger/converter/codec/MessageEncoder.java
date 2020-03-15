@@ -3,6 +3,7 @@ package com.antnest.msger.converter.codec;
 import com.ant.msger.base.annotation.Property;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
+import com.antnest.msger.converter.constant.Constants;
 import com.antnest.msger.converter.util.Bcd;
 import com.antnest.msger.converter.util.BeanUtils;
 import com.antnest.msger.converter.util.PropertyUtils;
@@ -17,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
+ * 特别注意：本类已退化成普通类，不再有encoder相关属性
  * 基础消息编码
  */
 public abstract class MessageEncoder<T extends AbstractBody> extends MessageToByteEncoder<AbstractMessage<T>> {
@@ -34,11 +36,11 @@ public abstract class MessageEncoder<T extends AbstractBody> extends MessageToBy
     public ByteBuf encode(AbstractMessage<T> message) {
         AbstractBody body = message.getBody();
 
-        ByteBuf bodyBuf = encode(Unpooled.buffer(256), body);
+        ByteBuf bodyBuf = encode(Unpooled.buffer(Constants.JT808_MSG_BODY_LENGTH), body);
 
         message.setBodyLength(bodyBuf.readableBytes());
 
-        ByteBuf headerBuf = encode(Unpooled.buffer(21), message);
+        ByteBuf headerBuf = encode(Unpooled.buffer(Constants.JT808_MSG_HEADER_LENGTH), message);
 
         ByteBuf buf = Unpooled.wrappedBuffer(headerBuf, bodyBuf);
 
@@ -54,7 +56,7 @@ public abstract class MessageEncoder<T extends AbstractBody> extends MessageToBy
     /** 签名 */
     public abstract ByteBuf sign(ByteBuf buf);
 
-    private ByteBuf encode(ByteBuf buf, Object body) {
+    protected ByteBuf encode(ByteBuf buf, Object body) {
         PropertyDescriptor[] pds = PropertyUtils.getPropertyDescriptor(body.getClass());
 
         for (PropertyDescriptor pd : pds) {

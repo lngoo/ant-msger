@@ -1,44 +1,63 @@
 package com.antnest.msger.converter.mapping;
 
+import com.ant.msger.base.annotation.Endpoint;
 import com.ant.msger.base.annotation.Mapping;
-import com.antnest.msger.converter.endpoint.JT808Endpoint;
+import com.antnest.msger.converter.endpoint.BaseEndpoint;
+import com.antnest.msger.converter.util.ClassUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * 特别注意：本包中缓存只有一层，和msger-main中的逻辑不一致，不一致，不一致
- */
-public class SpringHandlerMapper implements HandlerMapper {
+public class SpringHandlerMapper implements HandlerMapper, ApplicationContextAware {
 
-    private Map<Integer, Handler> handlerMap = new HashMap();
+    protected String[] packageNames;
+    private Map<Integer, Map<Integer, Handler>> handlerMap = new HashMap();
 
-    public SpringHandlerMapper() {
-        try {
-            init();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public SpringHandlerMapper(String... packageNames) {
+        this.packageNames = packageNames;
+    }
+
+    public Handler getHandler(Integer delimiter, Integer key) {
+        Map<Integer, Handler> childMap = handlerMap.get(delimiter);
+        if (null == childMap) {
+            return null;
+        } else {
+            return childMap.get(key);
         }
     }
 
-    public Handler getHandler(Integer key) {
-        return handlerMap.get(key);
-    }
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        for (String packageName : packageNames) {
+            List<Class<?>> handlerClassList = ClassUtils.getClassList(packageName, Endpoint.class);
 
-    public void init() throws Exception {
-        Class handlerClass = JT808Endpoint.class;
-        Object entpointBean = handlerClass.newInstance();
-        Method[] methods = handlerClass.getDeclaredMethods();
-        if (methods != null) {
-            for (Method method : methods) {
-                if (method.isAnnotationPresent(Mapping.class)) {
-                    Mapping annotation = method.getAnnotation(Mapping.class);
-                    String desc = annotation.desc();
-                    int[] types = annotation.types();
-                    Handler value = new Handler(entpointBean, method, desc);
-                    for (int type : types) {
-                        handlerMap.put(type, value);
+            for (Class<?> handlerClass : handlerClassList) {
+                Method[] methods = handlerClass.getDeclaredMethods();
+                if (methods != null) {
+                    for (Method method : methods) {
+                        if (method.isAnnotationPresent(Mapping.class)) {
+                            Mapping annotation = method.getAnnotation(Mapping.class);
+                            String desc = annotation.desc();
+                            int[] types = annotation.types();
+                            BaseEndpoint endpoint = (BaseEndpoint) applicationContext.getBean(handlerClass);
+                            Handler value = new Handler(endpoint, method, desc);
+
+                            Integer endpointType = endpoint.getPointType();
+                            Map<Integer, Handler> childMap = handlerMap.get(endpointType);
+                            if (null == childMap) {
+                                childMap = new HashMap<>();
+                                handlerMap.put(endpointType, childMap);
+                            }
+
+                            for (int type : types) {
+                                childMap.put(type, value);
+                            }
+                        }
                     }
                 }
             }
