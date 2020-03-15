@@ -17,6 +17,7 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -392,6 +393,33 @@ public class CoderTest {
         msg.setType(MessageId.IM消息);
         msg.setDelimiter(0x7a);
         msg.setMobileNumber("12345678913888889999");
+        msg.setSerialNumber(1);
+        msg.setBody(imMsg);
+
+        selfCheck(msg);
+    }
+
+    @Test
+    public void tmp() {
+        String fromUser = "121212";
+        String msgId = "a2323";
+        Integer msgType = 1;
+        String msgBody = "分数第三代";
+        String createTime = "20200314120000";
+
+        IMMsg imMsg = new IMMsg();
+        imMsg.setMsg(msgBody);
+        imMsg.setSendType(2);
+        imMsg.setSendTo("2222");
+        imMsg.setSendUserAlias(fromUser);
+        imMsg.setSendTime(createTime);
+        imMsg.setMsgId(msgId);
+        imMsg.setMsgType(msgType);
+
+        Message<IMMsg> msg = new Message<>();
+        msg.setType(MessageId.IM消息);
+        msg.setDelimiter(0x7a);
+        msg.setMobileNumber("10000000000000000001");
         msg.setSerialNumber(1);
         msg.setBody(imMsg);
 

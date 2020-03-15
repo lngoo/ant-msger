@@ -4,6 +4,7 @@ import com.ant.msger.base.annotation.Property;
 import com.ant.msger.base.enums.DataType;
 import com.ant.msger.base.message.AbstractBody;
 import com.ant.msger.base.message.AbstractMessage;
+import org.apache.commons.lang3.StringUtils;
 
 public class Message<T extends AbstractBody> extends AbstractMessage<T> {
 

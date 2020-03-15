@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * API接口controller
+ * topic相关操作接口
  * 全局错误码：
  * -1： 发生异常
  * -2： 参数不正确
  */
 @RestController
-@RequestMapping("/antMsger/api")
-public class MsgerApiRestController {
+@RequestMapping("/api")
+public class MsgerTopicRestController {
 
     @Autowired
     private TopicMapper topicMapper;
