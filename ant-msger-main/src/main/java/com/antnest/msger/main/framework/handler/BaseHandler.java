@@ -1,0 +1,77 @@
+package com.antnest.msger.main.framework.handler;
+
+import com.antnest.msger.core.dto.jt808.CommonResult;
+import com.antnest.msger.core.dto.jt808.basics.Message;
+import com.antnest.msger.core.message.AbstractMessage;
+import com.antnest.msger.main.framework.commons.enumeration.ProtocolCommunication;
+import com.antnest.msger.main.framework.log.Logger;
+import com.antnest.msger.core.mapping.Handler;
+import com.antnest.msger.core.mapping.HandlerMapper;
+import com.antnest.msger.main.framework.sender.ProtocolMsgSender;
+import com.antnest.msger.main.framework.session.Session;
+import com.antnest.msger.main.framework.session.SessionManager;
+import com.antnest.msger.main.web.config.SessionKey;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Type;
+import java.net.InetSocketAddress;
+
+import static com.antnest.msger.core.common.MessageId.平台通用应答;
+
+public class BaseHandler extends ChannelInboundHandlerAdapter {
+    protected final SessionManager sessionManager = SessionManager.getInstance();
+
+    protected Logger logger;
+    protected Integer sessionMinutes;
+
+    protected HandlerMapper handlerMapper;
+    protected ProtocolMsgSender protocolMsgSender = new ProtocolMsgSender();
+
+    protected AbstractMessage consumerMessage(ProtocolCommunication protocolCommunication, AbstractMessage messageRequest, InetSocketAddress socketAddress, Session session) throws java.lang.reflect.InvocationTargetException, IllegalAccessException {
+        Handler handler = handlerMapper.getHandler(messageRequest.getDelimiter(), messageRequest.getType());
+        Type[] types = handler.getTargetParameterTypes();
+
+        AbstractMessage messageResponse;
+        if (types.length == 1) { //handler.targetMethod.getName().equals("register")
+            messageResponse = handler.invoke(messageRequest);
+        } else if (StringUtils.equals("register", handler.getTargetMethod().getName())
+            || StringUtils.equals("authentication", handler.getTargetMethod().getName())) {
+            if (protocolCommunication == ProtocolCommunication.UDP) {
+                session = initUdpSession((Message) messageRequest, socketAddress);
+            }
+            messageResponse = handler.invoke(messageRequest, session);
+        } else {
+            // 为什么还需要取一次？
+//            session = sessionManager.getByUserAlias(getMobileNum(messageRequest));
+            // session是否过期了，过期了直接返回失败
+            if (null == session
+                    || System.currentTimeMillis() - session.getLastCommunicateTimeStamp() > 1000 * 60 * sessionMinutes) {
+                // 通用失败应答
+                CommonResult result = new CommonResult(messageRequest.getType(), ((Message)messageRequest).getSerialNumber(), CommonResult.Fial);
+                // 连接已丢失，未重连前，返回的序列号全为1
+                messageResponse = new Message(平台通用应答, 1, ((Message)messageRequest).getMobileNumber(), result);
+            } else {
+                session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+                messageResponse = handler.invoke(messageRequest, session);
+            }
+        }
+        return messageResponse;
+    }
+
+    private Session initUdpSession(Message message, InetSocketAddress socketAddress) {
+        Session session = new Session();
+        session.setUserAlias(message.getMobileNumber());
+        session.setId(Session.buildId(socketAddress));
+        session.setSocketAddress(socketAddress);
+        session.setProtocolCommunication(ProtocolCommunication.UDP);
+        session.setChannel(sessionManager.getBySessionId(SessionKey.UDP_GLOBAL_CHANNEL_KEY).getChannel());
+        session.setLastCommunicateTimeStamp(System.currentTimeMillis());
+        return session;
+    }
+
+    private String getMobileNum(AbstractMessage messageRequest) {
+        Message message = (Message) messageRequest;
+        return message.getMobileNumber();
+    }
+}

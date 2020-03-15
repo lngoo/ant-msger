@@ -20,7 +20,7 @@ spring:
 
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
-  type-aliases-package: com.ant.msger.main.persistence.entity
+  type-aliases-package: com.antnest.msger.main.persistence.entity
 
 # 打印sql
 logging:

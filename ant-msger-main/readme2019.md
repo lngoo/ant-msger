@@ -19,7 +19,7 @@
 7e020040160112345678913888888888006600000002000000020000000100000002000100010001907e
 
 8. 服务端查询终端1参数
-<?xml version="1.0" ?><com.ant.msger.base.dto.jt808.basics.Message><body class="com.ant.msger.base.dto.jt808.ParameterSetting"><parameters></parameters></body><type>33028</type><bodyProperties>1</bodyProperties><mobileNumber>013888888888</mobileNumber><serialNumber>102</serialNumber><bodyLength>1</bodyLength><encryptionType>0</encryptionType><subPackage>false</subPackage><reservedBit>0</reservedBit></com.ant.msger.base.dto.jt808.basics.Message>
+<?xml version="1.0" ?><com.antnest.msger.core.dto.jt808.basics.Message><body class="com.antnest.msger.core.dto.jt808.ParameterSetting"><parameters></parameters></body><type>33028</type><bodyProperties>1</bodyProperties><mobileNumber>013888888888</mobileNumber><serialNumber>102</serialNumber><bodyLength>1</bodyLength><encryptionType>0</encryptionType><subPackage>false</subPackage><reservedBit>0</reservedBit></com.antnest.msger.core.dto.jt808.basics.Message>
 
 a:b:c:response
 

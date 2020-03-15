@@ -24,7 +24,7 @@
         </javaTypeResolver>
 
         <!-- 生成模型的包名和位置-->
-        <javaModelGenerator targetPackage="com.ant.msger.main.persistence.entity" targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\java">
+        <javaModelGenerator targetPackage="com.antnest.msger.main.persistence.entity" targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
@@ -36,7 +36,7 @@
 
         <!-- 生成DAO的包名和位置-->
         <!-- XMLMAPPER生成xml映射文件, ANNOTATEDMAPPER生成的dao采用注解来写sql -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.ant.msger.main.persistence.dao"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.antnest.msger.main.persistence.dao"
                              targetProject="S:\selfcode\ant-msger\ant-msger-main\src\main\java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>

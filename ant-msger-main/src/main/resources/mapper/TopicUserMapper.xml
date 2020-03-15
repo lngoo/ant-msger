@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ant.msger.main.persistence.dao.TopicUserMapper">
-  <resultMap id="BaseResultMap" type="com.ant.msger.main.persistence.entity.TopicUser">
+<mapper namespace="com.antnest.msger.main.persistence.dao.TopicUserMapper">
+  <resultMap id="BaseResultMap" type="com.antnest.msger.main.persistence.entity.TopicUser">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="topic_id" jdbcType="VARCHAR" property="topicId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
@@ -19,13 +19,13 @@
     delete from topic_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
+  <insert id="insert" parameterType="com.antnest.msger.main.persistence.entity.TopicUser">
     insert into topic_user (id, topic_id, user_id
       )
     values (#{id,jdbcType=INTEGER}, #{topicId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
+  <insert id="insertSelective" parameterType="com.antnest.msger.main.persistence.entity.TopicUser">
     insert into topic_user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -50,7 +50,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
+  <update id="updateByPrimaryKeySelective" parameterType="com.antnest.msger.main.persistence.entity.TopicUser">
     update topic_user
     <set>
       <if test="topicId != null">
@@ -62,7 +62,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.ant.msger.main.persistence.entity.TopicUser">
+  <update id="updateByPrimaryKey" parameterType="com.antnest.msger.main.persistence.entity.TopicUser">
     update topic_user
     set topic_id = #{topicId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR}

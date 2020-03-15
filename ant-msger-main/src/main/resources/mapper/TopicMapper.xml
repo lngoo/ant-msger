@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ant.msger.main.persistence.dao.TopicMapper">
-  <resultMap id="BaseResultMap" type="com.ant.msger.main.persistence.entity.Topic">
+<mapper namespace="com.antnest.msger.main.persistence.dao.TopicMapper">
+  <resultMap id="BaseResultMap" type="com.antnest.msger.main.persistence.entity.Topic">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="topic_id" jdbcType="VARCHAR" property="topicId" />
     <result column="app_key" jdbcType="VARCHAR" property="appKey" />
@@ -24,7 +24,7 @@
     delete from topic
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ant.msger.main.persistence.entity.Topic">
+  <insert id="insert" parameterType="com.antnest.msger.main.persistence.entity.Topic">
     insert into topic (id, topic_id, app_key, 
       topic_name, biz_id, biz_type, 
       time_type, expire_time)
@@ -32,7 +32,7 @@
       #{topicName,jdbcType=VARCHAR}, #{bizId,jdbcType=VARCHAR}, #{bizType,jdbcType=VARCHAR}, 
       #{timeType,jdbcType=INTEGER}, #{expireTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.ant.msger.main.persistence.entity.Topic">
+  <insert id="insertSelective" parameterType="com.antnest.msger.main.persistence.entity.Topic">
     insert into topic
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -87,7 +87,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.ant.msger.main.persistence.entity.Topic">
+  <update id="updateByPrimaryKeySelective" parameterType="com.antnest.msger.main.persistence.entity.Topic">
     update topic
     <set>
       <if test="topicId != null">
@@ -114,7 +114,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.ant.msger.main.persistence.entity.Topic">
+  <update id="updateByPrimaryKey" parameterType="com.antnest.msger.main.persistence.entity.Topic">
     update topic
     set topic_id = #{topicId,jdbcType=VARCHAR},
       app_key = #{appKey,jdbcType=VARCHAR},
@@ -140,7 +140,7 @@
     where time_type = 0 or expire_time > now()
   </select>
 
-  <update id="updateByTopicId" parameterType="com.ant.msger.main.persistence.entity.Topic">
+  <update id="updateByTopicId" parameterType="com.antnest.msger.main.persistence.entity.Topic">
     update topic
     <set>
       <if test="topicName != null">
