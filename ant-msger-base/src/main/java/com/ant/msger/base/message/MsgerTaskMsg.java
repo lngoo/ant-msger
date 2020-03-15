@@ -2,9 +2,7 @@ package com.ant.msger.base.message;
 
 import com.ant.msger.base.enums.OperateType;
 import com.ant.msger.base.enums.SubjectType;
-import com.ant.msger.base.dto.persistence.PersistenceObject;
-
-import java.util.List;
+import com.ant.msger.base.dto.persistence.PersistenceData;
 
 /**
  * 任务通道消息类型
@@ -12,12 +10,12 @@ import java.util.List;
 public class MsgerTaskMsg {
     private OperateType operateType;
     private SubjectType subjectType;
-    private List<PersistenceObject> list;
+    private PersistenceData data;
 
-    public MsgerTaskMsg(OperateType operateType, SubjectType subjectType, List<PersistenceObject> list) {
+    public MsgerTaskMsg(OperateType operateType, SubjectType subjectType, PersistenceData data) {
         this.operateType = operateType;
         this.subjectType = subjectType;
-        this.list = list;
+        this.data = data;
     }
 
     public OperateType getOperateType() {
@@ -36,11 +34,11 @@ public class MsgerTaskMsg {
         this.subjectType = subjectType;
     }
 
-    public List<PersistenceObject> getList() {
-        return list;
+    public PersistenceData getData() {
+        return data;
     }
 
-    public void setList(List<PersistenceObject> list) {
-        this.list = list;
+    public void setData(PersistenceData data) {
+        this.data = data;
     }
 }
