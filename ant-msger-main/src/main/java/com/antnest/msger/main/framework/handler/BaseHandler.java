@@ -56,6 +56,7 @@ public class BaseHandler extends ChannelInboundHandlerAdapter {
                 messageResponse = handler.invoke(messageRequest, session);
             }
         }
+        messageResponse.setDelimiter(messageRequest.getDelimiter());
         return messageResponse;
     }
 

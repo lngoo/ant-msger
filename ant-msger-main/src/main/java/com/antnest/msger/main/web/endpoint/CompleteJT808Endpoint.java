@@ -6,7 +6,6 @@ import com.antnest.msger.core.constant.GlobalConfig;
 import com.antnest.msger.core.constant.ProtocolBusiness;
 import com.antnest.msger.core.dto.jt808.*;
 import com.antnest.msger.core.dto.jt808.basics.Message;
-import com.antnest.msger.core.endpoint.BaseEndpoint;
 import com.antnest.msger.core.endpoint.BaseJt808Endpoint;
 import com.antnest.msger.core.message.SyncFuture;
 import com.antnest.msger.main.framework.session.MessageManager;
@@ -19,7 +18,6 @@ import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

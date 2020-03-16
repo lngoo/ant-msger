@@ -29,4 +29,10 @@ public class MsgerAutoConfig {
     public BaseIMEndpoint baseIMEndpoint() {
         return new CompleteIMEndpoint();
     }
+
+    @Bean
+    @DependsOn({"globalConfig","JT808Endpoint","IMEndpoint"})
+    public HandlerMapper handlerMapper() {
+        return new SpringHandlerMapper("com.antnest.msger.main.web.endpoint");
+    }
 }

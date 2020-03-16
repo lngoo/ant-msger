@@ -45,6 +45,7 @@ public class AutoConfig {
 
     @Bean
     @DependsOn({"globalConfig","JT808Endpoint","IMEndpoint"})
+    @ConditionalOnMissingBean(HandlerMapper.class)
     public HandlerMapper handlerMapper() {
         return new SpringHandlerMapper("com.antnest.msger.core.endpoint");
     }

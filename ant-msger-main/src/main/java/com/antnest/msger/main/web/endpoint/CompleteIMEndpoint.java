@@ -4,10 +4,8 @@ import com.antnest.msger.core.annotation.Endpoint;
 import com.antnest.msger.core.annotation.Mapping;
 import com.antnest.msger.core.constant.GlobalConfig;
 import com.antnest.msger.core.constant.ProtocolBusiness;
-import com.antnest.msger.core.dto.jt808.IMMsg;
 import com.antnest.msger.core.dto.jt808.*;
 import com.antnest.msger.core.dto.jt808.basics.Message;
-import com.antnest.msger.core.endpoint.BaseEndpoint;
 import com.antnest.msger.core.endpoint.BaseIMEndpoint;
 import com.antnest.msger.core.message.SyncFuture;
 import com.antnest.msger.main.framework.session.MessageManager;
@@ -20,7 +18,6 @@ import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
